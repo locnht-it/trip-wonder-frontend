@@ -79,7 +79,7 @@ const RecentOrders = () => {
                   <Link to={`/orders/${order.id}`}>#{order.id}</Link>
                 </td>
                 <td>
-                  <Link to={`/products/${order.tour_id}`}>{order.tour_id}</Link>
+                  <Link to={`/tours/${order.tour_id}`}>{order.tour_id}</Link>
                 </td>
                 <td>
                   <Link to={`/customers/${order.customer_id}`}>
