@@ -126,7 +126,7 @@ const Header = () => {
                       active && `bg-gray-200`,
                       "text-gray-700 focus:bg-gray-200 block cursor-pointer rounded-sm px-4 py-2"
                     )}
-                    onClick={() => navigate(`/profile`)}
+                    onClick={() => navigate(`/profiles/${1}`)}
                   >
                     Your Profile
                   </div>

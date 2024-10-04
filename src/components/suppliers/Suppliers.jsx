@@ -1,57 +1,55 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import getSupplierStatus from "../../lib/utils/SupplierStatus";
-import getProvinceStatus from "../../lib/utils/ProvinceStatus";
 
-const provinceData = [
+const SupplierData = [
   {
     id: 1,
-    name: `Ho Chi Minh`,
+    name: `VietTravel`,
+    contactEmail: `viettravel@gmail.com`,
+    contactPhone: `0911000001`,
+    address: `Ho Chi Minh City`,
     status: `Active`,
   },
   {
     id: 2,
-    name: `Ha Noi`,
+    name: `BestPrice Travel`,
+    contactEmail: `bestprice@gmail.com`,
+    contactPhone: `0911000701`,
+    address: `Ha Noi`,
     status: `Inactive`,
   },
   {
     id: 3,
-    name: `Hai Phong`,
-    status: `Active`,
-  },
-  {
-    id: 4,
-    name: `Da Nang`,
-    status: `Active`,
-  },
-  {
-    id: 5,
-    name: `Can Tho`,
+    name: `Saigontourist`,
+    contactEmail: `saigontourist@gmail.com`,
+    contactPhone: `0911040001`,
+    address: `Ho Chi Minh City`,
     status: `Active`,
   },
 ];
 
-const Provinces = () => {
-  const [provinces, setProvinces] = useState(provinceData);
+const Suppliers = () => {
+  const [suppliers, setSuppliers] = useState(SupplierData);
   const navigate = useNavigate();
 
-  const handleAddNewProvince = () => {
-    navigate("/provinces/save");
+  const handleAddNewSupplier = () => {
+    navigate("/suppliers/save");
   };
 
-  const handleProvinceUpdate = (id) => {
-    navigate(`/provinces/update/${id}`);
+  const handleSupplierUpdate = (id) => {
+    navigate(`/suppliers/update/${id}`);
   };
 
   const handleToggleStatus = (id) => {
-    setProvinces((prevProvinces) =>
-      prevProvinces.map((province) =>
-        province.id === id
+    setSuppliers((prevSuppliers) =>
+      prevSuppliers.map((supplier) =>
+        supplier.id === id
           ? {
-              ...province,
-              status: province.status === "Active" ? "Inactive" : "Active",
+              ...supplier,
+              status: supplier.status === "Active" ? "Inactive" : "Active",
             }
-          : province
+          : supplier
       )
     );
   };
@@ -60,14 +58,14 @@ const Provinces = () => {
     <div class="-my-2 py-2 overflow-x-auto sm:-mx-6 sm:px-6 lg:-mx-8 pr-10 lg:px-8">
       <div class="align-middle inline-block min-w-full shadow overflow-hidden bg-white shadow-dashboard px-8 pt-3 rounded-bl-lg rounded-br-lg">
         <strong className="text-gray-700 font-medium text-4xl text-center block pb-7">
-          Province Management
+          Supplier Management
         </strong>
         <div class="sm:flex-1 sm:flex sm:items-center sm:justify-between mt-4 work-sans pb-5">
           <button
             class="px-10 py-2 border-green-500 border text-green-500 rounded transition duration-300 hover:bg-green-700 hover:text-white focus:outline-none ml-auto font-bold"
-            onClick={handleAddNewProvince}
+            onClick={handleAddNewSupplier}
           >
-            Add New Province
+            Add New Supplier
           </button>
         </div>
         <table class="min-w-full">
@@ -80,22 +78,31 @@ const Provinces = () => {
                 Name
               </th>
               <th class="px-6 py-3 border-b-2 border-gray-300 text-left text-sm leading-4 text-blue-500 tracking-wider">
+                Contact Email
+              </th>
+              <th class="px-6 py-3 border-b-2 border-gray-300 text-left text-sm leading-4 text-blue-500 tracking-wider">
+                Contact Phone
+              </th>
+              <th class="px-6 py-3 border-b-2 border-gray-300 text-left text-sm leading-4 text-blue-500 tracking-wider">
+                Address
+              </th>
+              <th class="px-6 py-3 border-b-2 border-gray-300 text-left text-sm leading-4 text-blue-500 tracking-wider">
                 Status
               </th>
-              <th class="px-2 py-3 border-b-2 border-gray-300"></th>
-              <th class="px-2 py-3 border-b-2 border-gray-300"></th>
+              <th class="px-6 py-3 border-b-2 border-gray-300"></th>
+              <th class="px-6 py-3 border-b-2 border-gray-300"></th>
             </tr>
           </thead>
           <tbody class="bg-white">
-            {provinces.map((province) => (
-              <tr key={province.id}>
+            {suppliers.map((supplier) => (
+              <tr key={supplier.id}>
                 <td class="px-6 py-4 whitespace-no-wrap border-b border-gray-500">
                   <div class="flex items-center">
                     <div>
                       <div class="text-sm leading-5 text-gray-800">
                         <td>
-                          <Link to={`/tours/${province.id}`}>
-                            #{province.id}
+                          <Link to={`/tours/${supplier.id}`}>
+                            #{supplier.id}
                           </Link>
                         </td>
                       </div>
@@ -104,32 +111,41 @@ const Provinces = () => {
                 </td>
                 <td class="px-6 py-4 whitespace-no-wrap border-b border-gray-500">
                   <div class="text-sm leading-5 text-blue-900">
-                    {province.name}
+                    {supplier.name}
                   </div>
                 </td>
-                <td class="px-6 py-4 whitespace-no-wrap border-b border-gray-500 text-blue-900 text-sm leading-5">
-                  {getProvinceStatus(province.status)}
+                <td class="px-6 py-4 whitespace-no-wrap border-b text-blue-900 border-gray-500 text-sm leading-5">
+                  {supplier.contactEmail}
                 </td>
-                <td class="px-2 py-4 whitespace-no-wrap text-right border-b border-gray-500 text-sm leading-5">
+                <td class="px-6 py-4 whitespace-no-wrap border-b text-blue-900 border-gray-500 text-sm leading-5">
+                  {supplier.contactPhone}
+                </td>
+                <td class="px-6 py-4 whitespace-no-wrap border-b text-blue-900 border-gray-500 text-sm leading-5">
+                  {supplier.address}
+                </td>
+                <td class="px-6 py-4 whitespace-no-wrap border-b border-gray-500 text-blue-900 text-sm leading-5">
+                  {getSupplierStatus(supplier.status)}
+                </td>
+                <td class="px-6 py-4 whitespace-no-wrap text-right border-b border-gray-500 text-sm leading-5">
                   <div class="flex justify-end space-x-2">
                     <button
                       class="px-5 py-2 border-blue-500 border text-blue-500 rounded transition duration-300 hover:bg-blue-700 hover:text-white focus:outline-none"
-                      onClick={() => handleProvinceUpdate(province.id)}
+                      onClick={() => handleSupplierUpdate(supplier.id)}
                     >
                       Update
                     </button>
                   </div>
                 </td>
-                <td class="px-2 py-4 whitespace-no-wrap text-right border-b border-gray-500 text-sm leading-5">
+                <td class="px-6 py-4 whitespace-no-wrap text-right border-b border-gray-500 text-sm leading-5">
                   <button
-                    class={`px-2 py-2 border ${
-                      province.status === "Active"
+                    class={`px-5 py-2 border ${
+                      supplier.status === "Active"
                         ? "border-red-500 text-red-500 hover:bg-red-700"
                         : "border-green-500 text-green-500 hover:bg-green-700"
                     } rounded transition duration-300 hover:text-white focus:outline-none`}
-                    onClick={() => handleToggleStatus(province.id)}
+                    onClick={() => handleToggleStatus(supplier.id)}
                   >
-                    {province.status === "Active"
+                    {supplier.status === "Active"
                       ? "Set Inactive"
                       : "Set Active"}
                   </button>
@@ -204,4 +220,4 @@ const Provinces = () => {
   );
 };
 
-export default Provinces;
+export default Suppliers;

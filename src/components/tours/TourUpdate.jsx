@@ -175,6 +175,20 @@ const TourUpdate = () => {
           />
         </div>
 
+        <div className="mb-4">
+          <label className="block text-gray-700 font-bold">Status</label>
+          <select
+            name="status"
+            value={formValues.status}
+            onChange={handleInputChange}
+            className="w-full px-3 py-2 border border-gray-300 rounded-lg"
+            required
+          >
+            <option value="Active">Active</option>
+            <option value="Inactive">Inactive</option>
+          </select>
+        </div>
+
         {/* Category */}
         <div className="mb-4">
           <label className="block text-gray-700 font-medium mb-2">
