@@ -9,6 +9,9 @@ import Provinces from "./components/provinces/Provinces";
 import AddNewTour from "./components/tours/TourAddNew";
 import TourUpdate from "./components/tours/TourUpdate";
 import TourDetails from "./components/tours/TourDetails";
+import OrderDetails from "./components/orders/OrderDetails";
+import UserAddNew from "./components/users/UserAddNew";
+import UserDetails from "./components/users/UserDetails";
 
 function App() {
   return (
@@ -22,7 +25,12 @@ function App() {
           <Route path="tours/:id" element={<TourDetails />} />
 
           <Route path="orders" element={<Orders />} />
+          <Route path="orders/:id" element={<OrderDetails />} />
+
           <Route path="users" element={<Users />} />
+          <Route path="users/save" element={<UserAddNew />} />
+          <Route path="users/:id" element={<UserDetails />} />
+
           <Route path="rating-reviews" element={<Rating_Reviews />} />
           <Route path="provinces" element={<Provinces />} />
         </Route>

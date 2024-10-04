@@ -10,7 +10,7 @@ const recentOrderData = [
     customer_name: `NamLee`,
     order_date: `2024-09-09`,
     order_total: `$435.50`,
-    current_order_status: `PLACED`,
+    current_order_status: `PENDING`,
     shipment_address: `Ho Chi Minh City`,
   },
   {
@@ -20,7 +20,7 @@ const recentOrderData = [
     customer_name: `HieuHa`,
     order_date: `2024-09-10`,
     order_total: `$500.50`,
-    current_order_status: `DELIVERED`,
+    current_order_status: `PAID`,
     shipment_address: `Can Tho City`,
   },
   {
@@ -30,7 +30,7 @@ const recentOrderData = [
     customer_name: `MinhTa`,
     order_date: `2024-09-11`,
     order_total: `$600.50`,
-    current_order_status: `OUT_FOR_DELIVERY`,
+    current_order_status: `PENDING`,
     shipment_address: `Ho Chi Minh City`,
   },
   {
@@ -40,7 +40,7 @@ const recentOrderData = [
     customer_name: `NamLee`,
     order_date: `2024-09-09`,
     order_total: `$435.50`,
-    current_order_status: `CONFIRMED`,
+    current_order_status: `PAID`,
     shipment_address: `Khanh Hoa`,
   },
   {
@@ -50,7 +50,7 @@ const recentOrderData = [
     customer_name: `TrungBui`,
     order_date: `2024-09-20`,
     order_total: `$1000.50`,
-    current_order_status: `SHIPPED`,
+    current_order_status: `PENDING`,
     shipment_address: `Hai Phong City`,
   },
 ];
@@ -82,7 +82,7 @@ const RecentOrders = () => {
                   <Link to={`/tours/${order.tour_id}`}>{order.tour_id}</Link>
                 </td>
                 <td>
-                  <Link to={`/customers/${order.customer_id}`}>
+                  <Link to={`/users/${order.customer_id}`}>
                     {order.customer_name}
                   </Link>
                 </td>

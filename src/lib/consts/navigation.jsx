@@ -8,6 +8,7 @@ import {
   HiOutlineCog,
   HiOutlineQuestionMarkCircle,
   HiOutlineLocationMarker,
+  HiOutlineServer,
 } from "react-icons/hi";
 
 export const DASHBOARD_SIDEBAR_LINKS = [
@@ -36,10 +37,10 @@ export const DASHBOARD_SIDEBAR_LINKS = [
     icon: <HiOutlineUsers />,
   },
   {
-    key: `rating-reviews`,
-    label: `Rating Reviews`,
-    path: `/rating-reviews`,
-    icon: <HiOutlineAnnotation />,
+    key: `suppliers`,
+    label: `Suppliers`,
+    path: `/suppliers`,
+    icon: <HiOutlineServer />,
   },
   {
     key: `provinces`,
@@ -50,12 +51,12 @@ export const DASHBOARD_SIDEBAR_LINKS = [
 ];
 
 export const DASHBOARD_SIDEBAR_BOTTOM_LINKS = [
-  {
-    key: `settings`,
-    label: `Settings`,
-    path: `/settings`,
-    icon: <HiOutlineCog />,
-  },
+  // {
+  //   key: `settings`,
+  //   label: `Settings`,
+  //   path: `/settings`,
+  //   icon: <HiOutlineCog />,
+  // },
   {
     key: `support`,
     label: `Help & Support`,

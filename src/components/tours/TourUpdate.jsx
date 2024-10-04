@@ -4,6 +4,9 @@ import { useNavigate, useParams } from "react-router-dom"; // Dùng useNavigate 
 const TourUpdate = () => {
   const { tourId } = useParams(); // Lấy ID tour từ URL
   const navigate = useNavigate();
+  const [categories, setCategories] = useState([]);
+  const [provinces, setProvinces] = useState([]);
+  const [suppliers, setSuppliers] = useState([]);
 
   // Fake data cho một tour cụ thể
   const fakeTourData = {
@@ -177,14 +180,20 @@ const TourUpdate = () => {
           <label className="block text-gray-700 font-medium mb-2">
             Category
           </label>
-          <input
-            type="text"
+          <select
             name="category"
             value={formValues.category}
             onChange={handleInputChange}
             className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none"
-            placeholder="Enter category"
-          />
+            required
+          >
+            <option value="">Select category</option>
+            {categories.map((category) => (
+              <option key={category.id} value={category.id}>
+                {category.name}
+              </option>
+            ))}
+          </select>
         </div>
 
         {/* Province */}
@@ -192,14 +201,20 @@ const TourUpdate = () => {
           <label className="block text-gray-700 font-medium mb-2">
             Province
           </label>
-          <input
-            type="text"
+          <select
             name="province"
             value={formValues.province}
             onChange={handleInputChange}
             className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none"
-            placeholder="Enter province"
-          />
+            required
+          >
+            <option value="">Select province</option>
+            {provinces.map((province) => (
+              <option key={province.id} value={province.id}>
+                {province.name}
+              </option>
+            ))}
+          </select>
         </div>
 
         {/* Supplier */}
@@ -207,14 +222,20 @@ const TourUpdate = () => {
           <label className="block text-gray-700 font-medium mb-2">
             Supplier
           </label>
-          <input
-            type="text"
+          <select
             name="supplier"
             value={formValues.supplier}
             onChange={handleInputChange}
             className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none"
-            placeholder="Enter supplier"
-          />
+            required
+          >
+            <option value="">Select supplier</option>
+            {suppliers.map((supplier) => (
+              <option key={supplier.id} value={supplier.id}>
+                {supplier.name}
+              </option>
+            ))}
+          </select>
         </div>
 
         {/* Upload Images */}

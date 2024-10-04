@@ -132,7 +132,7 @@ const Header = () => {
                   </div>
                 )}
               </Menu.Item>
-              <Menu.Item>
+              {/* <Menu.Item>
                 {({ active }) => (
                   <div
                     className={classNames(
@@ -144,7 +144,7 @@ const Header = () => {
                     Settings
                   </div>
                 )}
-              </Menu.Item>
+              </Menu.Item> */}
               <Menu.Item>
                 {({ active }) => (
                   <div

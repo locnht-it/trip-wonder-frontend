@@ -352,7 +352,7 @@ const TourDetail = ({ tourId }) => {
                 {"★".repeat(review.rating) + "☆".repeat(5 - review.rating)}
               </p>
               <p className="text-gray-700">{review.comment}</p>
-              <button
+              {/* <button
                 className={`mt-2 px-4 py-1 rounded focus:outline-none ${
                   review.isActive
                     ? "bg-red-500 text-white hover:bg-red-600"
@@ -361,7 +361,7 @@ const TourDetail = ({ tourId }) => {
                 onClick={() => handleToggleReviewStatus(index)}
               >
                 {review.isActive ? "Inactive" : "Active"}
-              </button>
+              </button> */}
             </div>
           ))
         ) : (

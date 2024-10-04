@@ -31,10 +31,7 @@ const PopularTours = () => {
       <strong className="text-gray-700 font-medium">Popular Tours</strong>
       <div className="mt-4 flex flex-col gap-3">
         {popularProductsData.map((product) => (
-          <Link
-            to={`/products/${product.id}`}
-            className="flex hover:no-underline"
-          >
+          <Link to={`/tours/${product.id}`} className="flex hover:no-underline">
             <div className="w-10 h-10 min-w-10 bg-gray-200 rounded-sm overflow-hidden">
               <img
                 className="w-full h-full object-cover"

@@ -110,7 +110,7 @@ const Tours = () => {
                     <div>
                       <div class="text-sm leading-5 text-gray-800">
                         <td>
-                          <Link to={`/orders/${tour.id}`}>#{tour.id}</Link>
+                          <Link to={`/tours/${tour.id}`}>#{tour.id}</Link>
                         </td>
                       </div>
                     </div>
@@ -126,7 +126,7 @@ const Tours = () => {
                   {tour.price}
                 </td>
                 <td class="px-6 py-4 whitespace-no-wrap border-b text-blue-900 border-gray-500 text-sm leading-5">
-                  {tour.price}
+                  {tour.province}
                 </td>
                 <td class="px-6 py-4 whitespace-no-wrap border-b border-gray-500 text-blue-900 text-sm leading-5">
                   {tour.supplier}
