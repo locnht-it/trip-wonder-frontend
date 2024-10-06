@@ -32,11 +32,11 @@ const ProfilePage = () => {
   }, [id]);
 
   const handleUpdate = () => {
-    navigate(`/profile/edit/${id}`); // Chuyển hướng tới trang chỉnh sửa thông tin với id
+    navigate(`/profiles/edit/${id}`); // Chuyển hướng tới trang chỉnh sửa thông tin với id
   };
 
   const handleChangePassword = () => {
-    navigate(`/profile/change-password/${id}`); // Chuyển hướng tới trang thay đổi mật khẩu với id
+    navigate(`/change-password`); // Chuyển hướng tới trang thay đổi mật khẩu với id
   };
 
   const handleBack = () => {
@@ -53,7 +53,7 @@ const ProfilePage = () => {
   }
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-gray-100">
+    <div className="flex items-center justify-center p-10 bg-gray-100">
       <div className="bg-white rounded-lg shadow-lg p-8 max-w-lg w-full">
         <h1 className="text-4xl font-bold text-gray-800 mb-4 text-center">
           Profile Information

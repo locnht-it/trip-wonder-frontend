@@ -26,16 +26,17 @@ const AddNewTour = () => {
   const [provinces, setProvinces] = useState([]);
   const [suppliers, setSuppliers] = useState([]);
   const [imagePreviews, setImagePreviews] = useState([]);
+  const [uploadStatus, setUploadStatus] = useState(null); // Quản lý trạng thái upload file
 
   // Sử dụng useEffect để lấy dữ liệu từ API khi component được mount
-  //   useEffect(() => {
-  //     // Gọi API để lấy dữ liệu danh mục, tỉnh thành, nhà cung cấp
-  //     axios
-  //       .get("/api/categories")
-  //       .then((response) => setCategories(response.data));
-  //     axios.get("/api/provinces").then((response) => setProvinces(response.data));
-  //     axios.get("/api/suppliers").then((response) => setSuppliers(response.data));
-  //   }, []);
+  // useEffect(() => {
+  //   // Giả lập việc gọi API để lấy dữ liệu cho các trường
+  //   axios
+  //     .get("/api/categories")
+  //     .then((response) => setCategories(response.data));
+  //   axios.get("/api/provinces").then((response) => setProvinces(response.data));
+  //   axios.get("/api/suppliers").then((response) => setSuppliers(response.data));
+  // }, []);
 
   // Xử lý submit form
   const handleSubmit = (e) => {
@@ -59,13 +60,53 @@ const AddNewTour = () => {
     setImagePreviews(previews);
   };
 
-  const handleCancel = () => {
-    navigate("/tours"); // Điều hướng về trang danh sách tour hoặc trang mong muốn
+  // Xử lý khi người dùng chọn file để upload ngay lập tức
+  const handleFileUpload = async (e) => {
+    const selectedFile = e.target.files[0];
+
+    if (selectedFile) {
+      const formData = new FormData();
+      formData.append("file", selectedFile);
+
+      try {
+        setUploadStatus("Uploading...");
+        // Gửi file lên server qua API
+        await axios.post("/api/upload", formData, {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        });
+
+        setUploadStatus("Upload successful!");
+      } catch (error) {
+        console.error("Error uploading file:", error);
+        setUploadStatus("Upload failed.");
+      }
+    }
   };
 
   return (
     <div className="max-w-xl mx-auto p-6 bg-white shadow-md rounded">
-      <h1 className="text-2xl font-bold text-center mb-6">Add New Tour</h1>
+      {/* Tiêu đề và nút Upload Excel */}
+      <div className="flex justify-between items-center mb-6">
+        <h1 className="text-2xl font-bold">Add New Tour</h1>
+        {/* Nút chọn file Excel nằm bên phải */}
+        <div>
+          <label className="relative inline-block px-4 py-2 bg-blue-500 text-white font-bold rounded-lg cursor-pointer hover:bg-blue-600">
+            Upload File
+            <input
+              type="file"
+              accept=".xlsx, .xls"
+              onChange={handleFileUpload}
+              className="absolute inset-0 opacity-0 cursor-pointer"
+            />
+          </label>
+          {uploadStatus && (
+            <p className="mt-2 text-sm text-gray-600">{uploadStatus}</p>
+          )}
+        </div>
+      </div>
+
       <form onSubmit={handleSubmit}>
         {/* Name */}
         <div className="mb-4">

@@ -18,6 +18,9 @@ import ProvinceAddNew from "./components/provinces/ProvinceAddNew";
 import ProvinceUpdate from "./components/provinces/ProvinceUpdate";
 import Support from "./components/support/Support";
 import Profile from "./components/profiles/Profiles";
+import ProfileUpdate from "./components/profiles/ProfileUpdate";
+import ChangePassword from "./components/changepassword/ChangePassword";
+import LogIn from "./components/login/LogIn";
 
 function App() {
   return (
@@ -48,8 +51,10 @@ function App() {
           <Route path="support" element={<Support />} />
 
           <Route path="profiles/:id" element={<Profile />} />
+          <Route path="profiles/edit/:id" element={<ProfileUpdate />} />
         </Route>
-        <Route path="login" element={<div>This is login page</div>} />
+        <Route path="change-password" element={<ChangePassword />} />
+        <Route path="login" element={<LogIn />} />
       </Routes>
     </Router>
   );
