@@ -1,6 +1,8 @@
 import React from "react";
+import { useNavigate } from "react-router-dom";
 
 const Login = () => {
+  const navigate = useNavigate();
   return (
     <div className="flex h-screen">
       {/* Phần hiển thị hình ảnh avatar */}
@@ -37,6 +39,7 @@ const Login = () => {
           <button
             type="submit"
             className="w-full p-2 bg-blue-500 text-white font-bold rounded hover:bg-blue-600"
+            onClick={() => navigate(`/`)}
           >
             Login
           </button>

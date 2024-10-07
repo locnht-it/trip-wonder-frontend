@@ -11,6 +11,11 @@ import { useNavigate } from "react-router-dom";
 const Header = () => {
   const navigate = useNavigate();
 
+  const handleLogout = () => {
+    localStorage.clear();
+    navigate("/login");
+  };
+
   return (
     <div className="bg-white h-16 px-4 flex justify-between items-center border-b border-gray-200">
       <div className="relative">
@@ -152,7 +157,7 @@ const Header = () => {
                       active && `bg-gray-200`,
                       "text-gray-700 focus:bg-gray-200 block cursor-pointer rounded-sm px-4 py-2"
                     )}
-                    onClick={() => navigate(`/logout`)}
+                    onClick={handleLogout}
                   >
                     Logout
                   </div>
