@@ -1,5 +1,8 @@
 import React from "react";
+import { FaUser } from "react-icons/fa";
 import { IoBagHandle } from "react-icons/io5";
+import { MdOutlineTour } from "react-icons/md";
+import { RiBillFill } from "react-icons/ri";
 
 const DashboardStatsGrid = () => {
   return (
@@ -22,7 +25,7 @@ const DashboardStatsGrid = () => {
       </BoxWrapper>
       <BoxWrapper>
         <div className="rounded-full h-12 w-12 flex items-center justify-center bg-orange-500">
-          <IoBagHandle className="text-2xl text-white" />
+          <FaUser className="text-2xl text-white" />
         </div>
         <div className="pl-4">
           <span className="text-sm text-gray-500 font-bold">
@@ -38,7 +41,7 @@ const DashboardStatsGrid = () => {
       </BoxWrapper>
       <BoxWrapper>
         <div className="rounded-full h-12 w-12 flex items-center justify-center bg-yellow-400">
-          <IoBagHandle className="text-2xl text-white" />
+          <MdOutlineTour className="text-2xl text-white" />
         </div>
         <div className="pl-4">
           <span className="text-sm text-gray-500 font-bold">Total Tours</span>
@@ -52,7 +55,7 @@ const DashboardStatsGrid = () => {
       </BoxWrapper>
       <BoxWrapper>
         <div className="rounded-full h-12 w-12 flex items-center justify-center bg-green-500">
-          <IoBagHandle className="text-2xl text-white" />
+          <RiBillFill className="text-2xl text-white" />
         </div>
         <div className="pl-4">
           <span className="text-sm text-gray-500 font-bold">Total Orders</span>

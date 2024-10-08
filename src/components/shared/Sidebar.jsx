@@ -27,12 +27,12 @@ const Sidebar = () => {
         />
         <span className="text-neutral-100 text-lg">Trip Wonder</span>
       </div>
-      <div className="flex-1 py-8 flex flex-col gap-0.5">
+      <div className="flex-1 py-4 flex flex-col gap-0.5 border-t-4 border-neutral-700">
         {DASHBOARD_SIDEBAR_LINKS.map((item) => (
           <SidebarLink key={item.key} item={item} />
         ))}
       </div>
-      <div className="flex flex-col gap-0.5 pt-2 border-t border-neutral-700">
+      <div className="flex flex-col gap-0.5 pt-2 border-t-4 border-neutral-700">
         {DASHBOARD_SIDEBAR_BOTTOM_LINKS.map((item) => (
           <SidebarLink key={item.key} item={item} />
         ))}

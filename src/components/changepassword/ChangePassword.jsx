@@ -100,7 +100,9 @@ const ChangePassword = () => {
 
         {step === 1 && (
           <div>
-            <h2 className="text-lg text-gray-700 mb-4">Enter your email</h2>
+            <h2 className="text-lg text-gray-700 font-semibold mb-4">
+              Enter your email
+            </h2>
             <input
               type="email"
               value={email}
@@ -129,7 +131,7 @@ const ChangePassword = () => {
 
         {step === 2 && (
           <div>
-            <h2 className="text-lg text-gray-700 mb-4">
+            <h2 className="text-lg text-gray-700 font-semibold mb-4">
               Enter the OTP sent to your email
             </h2>
             <input
@@ -160,7 +162,7 @@ const ChangePassword = () => {
 
         {step === 3 && (
           <div>
-            <h2 className="text-lg text-gray-700 mb-4">
+            <h2 className="text-lg text-gray-700 font-semibold mb-4">
               Enter your new password
             </h2>
             <input

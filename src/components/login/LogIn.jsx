@@ -4,17 +4,22 @@ import { useNavigate } from "react-router-dom";
 const Login = () => {
   const navigate = useNavigate();
   return (
-    <div className="flex h-screen">
+    <div className="flex h-screen rounded-sm">
       {/* Phần hiển thị hình ảnh avatar */}
-      <div className="flex-[3.5] flex items-center justify-center bg-gray-100 relative">
+      <div className="flex-[3.5] flex items-center justify-center bg-gray-100 relative rounded-sm">
         <img
-          src="./avatar.jpg"
-          alt="Avatar"
-          className="absolute inset-0 w-full h-full object-cover" // Chiếm toàn bộ không gian
+          src="https://wallpaperaccess.com/full/644364.jpg"
+          alt="background"
+          className="absolute inset-0 w-full h-full object-cover rounded-md" // Chiếm toàn bộ không gian
         />
       </div>
       {/* Phần form đăng nhập */}
       <div className="flex-[1.5] flex flex-col justify-center p-8 bg-white shadow-lg">
+        <img
+          src="./avatar.jpg"
+          alt="Avatar"
+          className="h-20 w-20 mx-auto object-cover rounded-md mb-10" // Chiếm toàn bộ không gian
+        />
         <h1 className="text-5xl font-bold text-center mb-3">Trip Wonder</h1>
         <h3 className="text-2xl font-semibold text-center mb-6">Go together</h3>
         <form className="space-y-4">
