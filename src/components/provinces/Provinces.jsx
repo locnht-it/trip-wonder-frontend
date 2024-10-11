@@ -92,12 +92,8 @@ const Provinces = () => {
                 <td class="px-6 py-4 whitespace-no-wrap border-b border-gray-500">
                   <div class="flex items-center">
                     <div>
-                      <div class="text-sm leading-5 text-gray-800">
-                        <td>
-                          <Link to={`/tours/${province.id}`}>
-                            #{province.id}
-                          </Link>
-                        </td>
+                      <div class="text-sm leading-5 text-blue-500">
+                        <td>#{province.id}</td>
                       </div>
                     </div>
                   </div>
@@ -109,16 +105,6 @@ const Provinces = () => {
                 </td>
                 <td class="px-6 py-4 whitespace-no-wrap border-b border-gray-500 text-blue-900 text-sm leading-5">
                   {getProvinceStatus(province.status)}
-                </td>
-                <td class="px-2 py-4 whitespace-no-wrap text-right border-b border-gray-500 text-sm leading-5">
-                  <div class="flex justify-end space-x-2">
-                    <button
-                      class="px-5 py-2 border-blue-500 border text-blue-500 rounded transition duration-300 hover:bg-blue-700 hover:text-white focus:outline-none"
-                      onClick={() => handleProvinceUpdate(province.id)}
-                    >
-                      Update
-                    </button>
-                  </div>
                 </td>
                 <td class="px-2 py-4 whitespace-no-wrap text-right border-b border-gray-500 text-sm leading-5">
                   <button
@@ -134,11 +120,32 @@ const Provinces = () => {
                       : "Set Active"}
                   </button>
                 </td>
+                <td class="px-2 py-4 whitespace-no-wrap text-right border-b border-gray-500 text-sm leading-5">
+                  <div class="flex justify-end space-x-2">
+                    <button
+                      class="px-5 py-2 border-blue-500 border text-blue-500 rounded transition duration-300 hover:bg-blue-700 hover:text-white focus:outline-none"
+                      onClick={() => handleProvinceUpdate(province.id)}
+                    >
+                      Update
+                    </button>
+                  </div>
+                </td>
               </tr>
             ))}
           </tbody>
         </table>
         <div class="sm:flex-1 sm:flex sm:items-center sm:justify-between mt-4 work-sans pb-3">
+          {/* <div>
+            <p class="text-sm leading-5 text-blue-700">
+              Showing
+              <span class="font-medium">1</span>
+              to
+              <span class="font-medium">200</span>
+              of
+              <span class="font-medium">2000</span>
+              results
+            </p>
+          </div> */}
           <div class="ml-auto">
             <nav class="relative z-0 inline-flex shadow-sm">
               <div>
@@ -151,7 +158,7 @@ const Provinces = () => {
                   <svg class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
                     <path
                       fillRule="evenodd"
-                      d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z"
+                      d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z"
                       clipRule="evenodd"
                     />
                   </svg>
@@ -190,7 +197,7 @@ const Provinces = () => {
                   <svg class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
                     <path
                       fillRule="evenodd"
-                      d="M7.293 14.707a1 1 010-1.414L10.586 10l-3.293-3.293a1 1 011.414-1.414l4 4a1 1 010 1.414l-4 4a1 1 01-1.414 0z"
+                      d="M7.293 14.707a1 1 0 010-1.414L10.586 10l-3.293-3.293a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"
                       clipRule="evenodd"
                     />
                   </svg>

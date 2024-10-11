@@ -19,11 +19,10 @@ const ProvinceAddNew = () => {
     });
   };
 
-  // Xử lý tạo mới supplier
   const handleSubmit = (e) => {
     e.preventDefault();
     // Gửi yêu cầu tạo mới đến server
-    console.log("New supplier:", province);
+    console.log("New province:", province);
     // Điều hướng về trang quản lý nhà cung cấp sau khi tạo mới
     navigate("/provinces");
   };
