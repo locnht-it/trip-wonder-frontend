@@ -91,14 +91,8 @@ const Orders = () => {
             {orderData.map((order) => (
               <tr>
                 <td class="px-6 py-4 whitespace-no-wrap border-b border-gray-500">
-                  <div class="flex items-center">
-                    <div>
-                      <div class="text-sm leading-5 text-gray-800">
-                        <td>
-                          <Link to={`/orders/${order.id}`}>#{order.id}</Link>
-                        </td>
-                      </div>
-                    </div>
+                  <div class="text-sm leading-5 text-gray-800">
+                    <Link to={`/orders/${order.id}`}>#{order.id}</Link>
                   </div>
                 </td>
                 <td class="px-6 py-4 whitespace-no-wrap border-b border-gray-500">

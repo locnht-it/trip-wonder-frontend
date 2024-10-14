@@ -74,7 +74,7 @@ const ChangePassword = () => {
       const success = await updatePassword(email, newPassword);
       if (success) {
         setError("");
-        navigate(`/profile/${id}`); // Điều hướng về trang profile sau khi đổi mật khẩu thành công
+        navigate(`/login`);
       } else {
         setError("Failed to update password. Please try again.");
       }

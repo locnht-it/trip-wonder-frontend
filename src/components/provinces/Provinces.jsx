@@ -90,12 +90,8 @@ const Provinces = () => {
             {provinces.map((province) => (
               <tr key={province.id}>
                 <td class="px-6 py-4 whitespace-no-wrap border-b border-gray-500">
-                  <div class="flex items-center">
-                    <div>
-                      <div class="text-sm leading-5 text-blue-500">
-                        <td>#{province.id}</td>
-                      </div>
-                    </div>
+                  <div class="text-sm leading-5 text-blue-500">
+                    #{province.id}
                   </div>
                 </td>
                 <td class="px-6 py-4 whitespace-no-wrap border-b border-gray-500">

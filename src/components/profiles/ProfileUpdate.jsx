@@ -1,5 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
+import { storage } from "../../lib/firebase/Firebase";
+import { getDownloadURL, ref, uploadBytes } from "firebase/storage";
+import { v4 } from "uuid";
 import axios from "axios"; // Giả sử bạn sử dụng axios để gọi API
 
 // Giả sử bạn có một hàm lấy thông tin người dùng theo id
@@ -36,13 +39,13 @@ const ProfileUpdate = () => {
     gender: "",
     avatar: "",
   });
-  const [avatarPreview, setAvatarPreview] = useState("");
+  const [image, setImage] = useState("");
 
   useEffect(() => {
     const loadUserData = async () => {
       const data = await fetchUserData(id);
       setUserData(data);
-      setAvatarPreview(data.avatar); // Hiển thị ảnh avatar hiện tại
+      // setImage(data.avatar); // Hiển thị ảnh avatar hiện tại
     };
     loadUserData();
   }, [id]);
@@ -55,19 +58,37 @@ const ProfileUpdate = () => {
   const handleAvatarChange = (e) => {
     const file = e.target.files[0];
     if (file) {
-      setUserData({ ...userData, avatar: file });
-      setAvatarPreview(URL.createObjectURL(file)); // Hiển thị ảnh mới được chọn
+      // Tạo một tên file với UUID để đảm bảo là duy nhất
+      const imageRef = ref(storage, `images/${file.name + v4()}`);
+
+      // Upload file lên Firebase Storage
+      uploadBytes(imageRef, file)
+        .then(() => {
+          // Khi upload thành công, lấy download URL của file đó
+          return getDownloadURL(imageRef);
+        })
+        .then((url) => {
+          // Cập nhật URL hình ảnh mới
+          setImage(url);
+          setUserData({ ...userData, avatar: url }); // Cập nhật avatar của user
+          console.log(`Image uploaded url: `, url); // In ra URL của ảnh ngay lập tức
+        })
+        .catch((error) => {
+          console.error("Error uploading image:", error);
+          alert("Failed to upload image");
+        });
     }
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    console.log(`Profiles: `, userData);
     await updateUserProfile(id, userData);
-    navigate(`/profile/${id}`); // Điều hướng trở lại trang profile sau khi cập nhật
+    navigate(`/profiles/${id}`); // Điều hướng trở lại trang profile sau khi cập nhật
   };
 
   const handleCancel = () => {
-    navigate(`/profile/${id}`); // Quay lại trang profile mà không lưu thay đổi
+    navigate(`/profiles/${id}`); // Quay lại trang profile mà không lưu thay đổi
   };
 
   return (
@@ -80,7 +101,7 @@ const ProfileUpdate = () => {
           {/* Avatar */}
           <div className="flex items-center mb-6">
             <img
-              src={avatarPreview}
+              src={image}
               alt="Avatar Preview"
               className="w-32 h-32 rounded-full border border-gray-300"
             />

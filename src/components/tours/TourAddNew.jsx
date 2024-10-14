@@ -1,6 +1,9 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios"; // Sử dụng axios để gọi API
 import { useNavigate } from "react-router-dom";
+import { storage } from "../../lib/firebase/Firebase";
+import { getDownloadURL, ref, uploadBytes } from "firebase/storage";
+import { v4 } from "uuid";
 
 const AddNewTour = () => {
   const navigate = useNavigate();
@@ -25,7 +28,7 @@ const AddNewTour = () => {
   const [categories, setCategories] = useState([]);
   const [provinces, setProvinces] = useState([]);
   const [suppliers, setSuppliers] = useState([]);
-  const [imagePreviews, setImagePreviews] = useState([]);
+  const [images, setImages] = useState([]);
   const [uploadStatus, setUploadStatus] = useState(null); // Quản lý trạng thái upload file
 
   // Sử dụng useEffect để lấy dữ liệu từ API khi component được mount
@@ -52,12 +55,41 @@ const AddNewTour = () => {
   };
 
   // Xử lý thay đổi khi chọn ảnh
-  const handleImageChange = (e) => {
-    const files = Array.from(e.target.files);
-    setFormValues({ ...formValues, images: files });
+  const handleImagesChange = (e) => {
+    const files = e.target.files; // Lấy danh sách các file đã chọn
+    if (files.length > 0) {
+      const uploadPromises = [];
+      const urls = [];
 
-    const previews = files.map((file) => URL.createObjectURL(file));
-    setImagePreviews(previews);
+      // Duyệt qua từng file để upload lên Firebase Storage
+      Array.from(files).forEach((file) => {
+        const imageRef = ref(storage, `images/${file.name + v4()}`);
+
+        // Đẩy từng file lên Firebase Storage và lưu promise vào mảng
+        const uploadTask = uploadBytes(imageRef, file)
+          .then(() => getDownloadURL(imageRef))
+          .then((url) => {
+            urls.push(url); // Lưu URL của file đã upload
+          })
+          .catch((error) => {
+            console.error("Error uploading image:", error);
+            alert("Failed to upload image");
+          });
+
+        uploadPromises.push(uploadTask); // Thêm promise vào mảng
+      });
+
+      // Chờ cho tất cả các file được upload xong
+      Promise.all(uploadPromises)
+        .then(() => {
+          // Cập nhật các URL đã upload vào state
+          setImages(urls); // Cập nhật mảng URL
+          console.log("Uploaded images: ", urls); // In ra các URL
+        })
+        .catch((error) => {
+          console.error("Error uploading one or more images:", error);
+        });
+    }
   };
 
   // Xử lý khi người dùng chọn file để upload ngay lập tức
@@ -295,19 +327,19 @@ const AddNewTour = () => {
           <input
             type="file"
             multiple
-            onChange={handleImageChange}
+            onChange={handleImagesChange}
             className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none"
           />
         </div>
 
         {/* Image Previews */}
-        {imagePreviews.length > 0 && (
+        {images.length > 0 && (
           <div className="mb-4">
             <label className="block text-gray-700 font-medium mb-2">
               Image Previews
             </label>
             <div className="grid grid-cols-3 gap-4">
-              {imagePreviews.map((preview, index) => (
+              {images.map((preview, index) => (
                 <img
                   key={index}
                   src={preview}

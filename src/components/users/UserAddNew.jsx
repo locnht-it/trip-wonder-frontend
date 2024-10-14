@@ -1,8 +1,11 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { storage } from "../../lib/firebase/Firebase";
+import { getDownloadURL, ref, uploadBytes } from "firebase/storage";
+import { v4 } from "uuid";
 
 const UserAddNew = () => {
-  const [avatar, setAvatar] = useState(null);
+  const [image, setImage] = useState(null);
   const [fullName, setFullName] = useState("");
   const [address, setAddress] = useState("");
   const [email, setEmail] = useState("");
@@ -15,14 +18,34 @@ const UserAddNew = () => {
   const navigate = useNavigate();
 
   const handleAvatarChange = (e) => {
-    setAvatar(URL.createObjectURL(e.target.files[0])); // Hiển thị ảnh avatar đã chọn
+    const file = e.target.files[0];
+    if (file) {
+      // Tạo một tên file với UUID để đảm bảo là duy nhất
+      const imageRef = ref(storage, `images/${file.name + v4()}`);
+
+      // Upload file lên Firebase Storage
+      uploadBytes(imageRef, file)
+        .then(() => {
+          // Khi upload thành công, lấy download URL của file đó
+          return getDownloadURL(imageRef);
+        })
+        .then((url) => {
+          // Cập nhật URL hình ảnh mới
+          setImage(url);
+          console.log(`Image uploaded url: `, url); // In ra URL của ảnh ngay lập tức
+        })
+        .catch((error) => {
+          console.error("Error uploading image:", error);
+          alert("Failed to upload image");
+        });
+    }
   };
 
   const handleSubmit = (e) => {
     e.preventDefault();
     // Xử lý logic submit form (ví dụ gửi dữ liệu đến server API)
     const accountData = {
-      avatar,
+      image,
       fullName,
       address,
       email,
@@ -52,10 +75,10 @@ const UserAddNew = () => {
             onChange={handleAvatarChange}
             className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none"
           />
-          {avatar && (
+          {image && (
             <div className="mt-4">
               <img
-                src={avatar}
+                src={image}
                 alt="Avatar Preview"
                 className="w-32 h-32 object-cover rounded-full"
               />

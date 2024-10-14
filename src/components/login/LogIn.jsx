@@ -8,9 +8,9 @@ const Login = () => {
       {/* Phần hiển thị hình ảnh avatar */}
       <div className="flex-[3.5] flex items-center justify-center bg-gray-100 relative rounded-sm">
         <img
-          src="https://wallpaperaccess.com/full/644364.jpg"
+          src="https://i1-dulich.vnecdn.net/2023/07/11/taudem-9193-1689073967.jpg?w=0&h=0&q=100&dpr=1&fit=crop&s=4NsCCIysyUEIQJTwQ2Wsvg"
           alt="background"
-          className="absolute inset-0 w-full h-full object-cover rounded-md" // Chiếm toàn bộ không gian
+          className="absolute w- h-full object-cover rounded-md" // Chiếm toàn bộ không gian
         />
       </div>
       {/* Phần form đăng nhập */}
