@@ -23,6 +23,7 @@ export function AuthProvider({ children }) {
   const login = async (login, password) => {
     console.log("Sending data to API:", { login, password });
 
+    // API: Login
     const response = await fetch("http://localhost:8080/api/v1/auth/signin", {
       method: "POST",
       headers: {
