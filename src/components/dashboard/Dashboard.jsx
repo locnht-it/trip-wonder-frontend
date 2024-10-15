@@ -1,4 +1,5 @@
-import React from "react";
+import React, { useEffect } from "react";
+import { toast } from "react-toastify"; // Import toast
 import DashboardStatsGrid from "./DashboardStatsGrid";
 import CustomerProfileChart from "./CustomerProfileChart";
 import CustomerNumberChart from "./CustomerNumberChart";

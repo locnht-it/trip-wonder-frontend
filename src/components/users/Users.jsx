@@ -2,6 +2,8 @@ import React from "react";
 import { Link, useNavigate } from "react-router-dom";
 import getUserRole from "../../lib/utils/UserRole";
 import getUserStatus from "../../lib/utils/UserStatus";
+import { useAuth } from "../auth/AuthContext";
+import { toast } from "react-toastify";
 
 const userData = [
   {
@@ -43,13 +45,22 @@ const userData = [
 
 const Users = () => {
   const navigate = useNavigate();
+  const { user } = useAuth();
 
   const handleAddNewUser = () => {
-    navigate("/users/save");
+    if (user.roles === "ADMIN") {
+      navigate("/users/save");
+    } else {
+      toast.error("You Don’t Currently Have Permission to Access");
+    }
   };
 
   const handleUserDetail = (id) => {
-    navigate(`/users/${id}`);
+    if (user.roles === "ADMIN") {
+      navigate(`/users/${id}`);
+    } else {
+      toast.error("You Don’t Currently Have Permission to Access");
+    }
   };
 
   return (

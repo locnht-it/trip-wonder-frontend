@@ -21,42 +21,198 @@ import Profile from "./components/profiles/Profiles";
 import ProfileUpdate from "./components/profiles/ProfileUpdate";
 import ChangePassword from "./components/changepassword/ChangePassword";
 import LogIn from "./components/login/LogIn";
+import { AuthProvider } from "./components/auth/AuthContext";
+import ProtectedRoute from "./ProtectedRoute";
 
 function App() {
   return (
-    <Router>
-      <Routes>
-        <Route path="/" element={<Layout />}>
-          <Route index element={<Dashboard />} />
-          <Route path="tours" element={<Tours />} />
-          <Route path="tours/save" element={<AddNewTour />} />
-          <Route path="tours/update/:id" element={<TourUpdate />} />
-          <Route path="tours/:id" element={<TourDetails />} />
+    <AuthProvider>
+      <Router>
+        <Routes>
+          {/* Public Routes */}
+          <Route path="change-password" element={<ChangePassword />} />
+          <Route path="login" element={<LogIn />} />
 
-          <Route path="orders" element={<Orders />} />
-          <Route path="orders/:id" element={<OrderDetails />} />
+          {/* Admin Routes */}
+          <Route path="/" element={<Layout />}>
+            <Route
+              path="/"
+              element={
+                <ProtectedRoute
+                  element={<Dashboard />}
+                  requiredRole={["ADMIN", "STAFF"]}
+                />
+              }
+            />
+            <Route
+              path="tours"
+              element={
+                <ProtectedRoute
+                  element={<Tours />}
+                  requiredRole={["ADMIN", "STAFF"]}
+                />
+              }
+            />
+            <Route
+              path="tours/save"
+              element={
+                <ProtectedRoute
+                  element={<AddNewTour />}
+                  requiredRole={["ADMIN", "STAFF"]}
+                />
+              }
+            />
+            <Route
+              path="tours/update/:id"
+              element={
+                <ProtectedRoute
+                  element={<TourUpdate />}
+                  requiredRole={["ADMIN", "STAFF"]}
+                />
+              }
+            />
+            <Route
+              path="tours/:id"
+              element={
+                <ProtectedRoute
+                  element={<TourDetails />}
+                  requiredRole={["ADMIN", "STAFF"]}
+                />
+              }
+            />
 
-          <Route path="users" element={<Users />} />
-          <Route path="users/save" element={<UserAddNew />} />
-          <Route path="users/:id" element={<UserDetails />} />
+            <Route
+              path="orders"
+              element={
+                <ProtectedRoute
+                  element={<Orders />}
+                  requiredRole={["ADMIN", "STAFF"]}
+                />
+              }
+            />
+            <Route
+              path="orders/:id"
+              element={
+                <ProtectedRoute
+                  element={<OrderDetails />}
+                  requiredRole={["ADMIN", "STAFF"]}
+                />
+              }
+            />
 
-          <Route path="suppliers" element={<Suppliers />} />
-          <Route path="suppliers/save" element={<SupplierAddNew />} />
-          <Route path="suppliers/update/:id" element={<SupplierUpdate />} />
+            <Route
+              path="users"
+              element={
+                <ProtectedRoute element={<Users />} requiredRole={"ADMIN"} />
+              }
+            />
+            <Route
+              path="users/save"
+              element={
+                <ProtectedRoute
+                  element={<UserAddNew />}
+                  requiredRole={"ADMIN"}
+                />
+              }
+            />
+            <Route
+              path="users/:id"
+              element={
+                <ProtectedRoute
+                  element={<UserDetails />}
+                  requiredRole={"ADMIN"}
+                />
+              }
+            />
 
-          <Route path="provinces" element={<Provinces />} />
-          <Route path="provinces/save" element={<ProvinceAddNew />} />
-          <Route path="provinces/update/:id" element={<ProvinceUpdate />} />
+            <Route
+              path="suppliers"
+              element={
+                <ProtectedRoute
+                  element={<Suppliers />}
+                  requiredRole={["ADMIN", "STAFF"]}
+                />
+              }
+            />
+            <Route
+              path="suppliers/save"
+              element={
+                <ProtectedRoute
+                  element={<SupplierAddNew />}
+                  requiredRole={["ADMIN", "STAFF"]}
+                />
+              }
+            />
+            <Route
+              path="suppliers/update/:id"
+              element={
+                <ProtectedRoute
+                  element={<SupplierUpdate />}
+                  requiredRole={["ADMIN", "STAFF"]}
+                />
+              }
+            />
 
-          <Route path="support" element={<Support />} />
+            <Route
+              path="provinces"
+              element={
+                <ProtectedRoute
+                  element={<Provinces />}
+                  requiredRole={["ADMIN", "STAFF"]}
+                />
+              }
+            />
+            <Route
+              path="provinces/save"
+              element={
+                <ProtectedRoute
+                  element={<ProvinceAddNew />}
+                  requiredRole={["ADMIN", "STAFF"]}
+                />
+              }
+            />
+            <Route
+              path="provinces/update/:id"
+              element={
+                <ProtectedRoute
+                  element={<ProvinceUpdate />}
+                  requiredRole={["ADMIN", "STAFF"]}
+                />
+              }
+            />
 
-          <Route path="profiles/:id" element={<Profile />} />
-          <Route path="profiles/edit/:id" element={<ProfileUpdate />} />
-        </Route>
-        <Route path="change-password" element={<ChangePassword />} />
-        <Route path="login" element={<LogIn />} />
-      </Routes>
-    </Router>
+            <Route
+              path="support"
+              element={
+                <ProtectedRoute
+                  element={<Support />}
+                  requiredRole={["ADMIN", "STAFF"]}
+                />
+              }
+            />
+
+            <Route
+              path="profiles/:id"
+              element={
+                <ProtectedRoute
+                  element={<Profile />}
+                  requiredRole={["ADMIN", "STAFF"]}
+                />
+              }
+            />
+            <Route
+              path="profiles/edit/:id"
+              element={
+                <ProtectedRoute
+                  element={<ProfileUpdate />}
+                  requiredRole={["ADMIN", "STAFF"]}
+                />
+              }
+            />
+          </Route>
+        </Routes>
+      </Router>
+    </AuthProvider>
   );
 }
 
