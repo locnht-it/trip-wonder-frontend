@@ -112,12 +112,6 @@ const TourDetail = ({ tourId }) => {
           <p className="text-lg">{tour.endTime}</p>
         </div>
 
-        {/* Date */}
-        <div className="mb-4 border border-gray-300 p-3 rounded">
-          <label className="block text-gray-700 font-bold mb-2">Date</label>
-          <p className="text-lg">{new Date(tour.date).toLocaleDateString()}</p>
-        </div>
-
         {/* Status */}
         <div className="mb-4 border border-gray-300 p-3 rounded">
           <label className="block text-gray-700 font-bold mb-2">Status</label>

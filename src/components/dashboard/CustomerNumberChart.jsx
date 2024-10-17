@@ -1,90 +1,76 @@
-import { Legend } from "@headlessui/react";
-import React from "react";
+import React, { useState, useEffect } from "react";
 import {
-  Bar,
-  BarChart,
-  CartesianGrid,
-  Line,
   LineChart,
-  ResponsiveContainer,
-  Tooltip,
+  Line,
   XAxis,
   YAxis,
+  CartesianGrid,
+  Tooltip,
+  Legend,
+  ResponsiveContainer,
 } from "recharts";
+import { getNumberOfCustomerForEachMonth } from "../../api/dashboardApi";
 
-const data = [
-  {
-    name: "Jan",
-    uv: 4000,
+const CustomerNumberChart = ({ year }) => {
+  const [data, setData] = useState([]); // State để lưu dữ liệu từ API
 
-    amt: 2400,
-  },
-  {
-    name: "Feb",
-    uv: 3000,
+  useEffect(() => {
+    const fetchCustomerDataForYear = async () => {
+      const promises = [];
+      const chartData = [];
 
-    amt: 2210,
-  },
-  {
-    name: "Mar",
-    uv: 2000,
+      // Gọi API cho từng tháng trong năm
+      for (let month = 1; month <= 10; month++) {
+        const promise = getNumberOfCustomerForEachMonth(month, 2024)
+          .then((response) => {
+            // Log đúng dữ liệu trả về
+            console.log(
+              `>>> Check response from CustomerDataForEachMonth ${month}: `,
+              response
+            );
 
-    amt: 2290,
-  },
-  {
-    name: "Apr",
-    uv: 2780,
+            // Thêm dữ liệu vào chartData
+            chartData.push({
+              name: `Month ${month}`, // Tháng hiện tại
+              customers: response.data.content, // Số lượng khách hàng trả về từ API
+            });
+          })
+          .catch((error) => {
+            console.error(`Error fetching data for month ${month}:`, error);
+            chartData.push({
+              name: `Month ${month}`,
+              customers: 0, // Nếu có lỗi thì số lượng khách là 0
+            });
+          });
 
-    amt: 2000,
-  },
-  {
-    name: "May",
-    uv: 1890,
+        promises.push(promise); // Lưu promise để xử lý tất cả cùng lúc
+      }
 
-    amt: 2181,
-  },
-  {
-    name: "Jun",
-    uv: 2390,
+      // Chờ tất cả các API call hoàn tất
+      await Promise.all(promises);
 
-    amt: 2500,
-  },
-  {
-    name: "Jul",
-    uv: 3490,
+      // Sắp xếp dữ liệu theo tháng (phòng trường hợp dữ liệu bị lệch thứ tự)
+      chartData.sort((a, b) => {
+        const monthA = parseInt(a.name.split(" ")[1], 10);
+        const monthB = parseInt(b.name.split(" ")[1], 10);
+        return monthA - monthB;
+      });
+      console.log(`>>> Check customer number for each month: `, chartData);
+      setData(chartData); // Cập nhật dữ liệu biểu đồ
+    };
 
-    amt: 2100,
-  },
-  {
-    name: "Aug",
-    uv: 3000,
+    fetchCustomerDataForYear(); // Gọi hàm lấy dữ liệu
+  }, []);
 
-    amt: 2100,
-  },
-  {
-    name: "Sep",
-    uv: 2500,
-
-    amt: 2100,
-  },
-  {
-    name: "Oct",
-    uv: 3490,
-
-    amt: 2100,
-  },
-];
-
-const CustomerNumberChart = () => {
   return (
     <div className="h-[22rem] bg-white p-4 rounded-sm border border-gray-200 flex flex-col flex-1">
-      <strong className="text-gray-700 font-medium">Customers</strong>
+      <strong className="text-gray-700 font-medium">Customers for 2024</strong>
       <div className="w-full mt-3 flex-1 text-xs">
         <ResponsiveContainer width="100%" height="100%">
           <LineChart
             width={500}
             height={300}
-            data={data}
+            data={data} // Dữ liệu từ API
             margin={{
               top: 5,
               right: 30,
@@ -93,17 +79,16 @@ const CustomerNumberChart = () => {
             }}
           >
             <CartesianGrid strokeDasharray="3 3" />
-            <XAxis dataKey="name" />
+            <XAxis dataKey="name" /> {/* Hiển thị tháng */}
             <YAxis />
             <Tooltip />
             <Legend />
             <Line
               type="monotone"
-              dataKey="pv"
+              dataKey="customers" // Số lượng khách hàng
               stroke="#8884d8"
               activeDot={{ r: 8 }}
             />
-            <Line type="monotone" dataKey="uv" stroke="#82ca9d" />
           </LineChart>
         </ResponsiveContainer>
       </div>

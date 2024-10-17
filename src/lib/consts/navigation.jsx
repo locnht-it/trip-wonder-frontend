@@ -10,6 +10,7 @@ import {
   HiOutlineLocationMarker,
   HiOutlineServer,
 } from "react-icons/hi";
+import { TbCategory } from "react-icons/tb";
 
 export const DASHBOARD_SIDEBAR_LINKS = [
   {
@@ -47,6 +48,12 @@ export const DASHBOARD_SIDEBAR_LINKS = [
     label: `Provinces`,
     path: `/provinces`,
     icon: <HiOutlineLocationMarker />,
+  },
+  {
+    key: `category`,
+    label: `Category`,
+    path: `/category`,
+    icon: <TbCategory />,
   },
 ];
 

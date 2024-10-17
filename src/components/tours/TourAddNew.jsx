@@ -16,7 +16,6 @@ const AddNewTour = () => {
     price: "",
     startTime: "",
     endTime: "",
-    date: "",
     status: "",
     category: "",
     province: "",
@@ -52,6 +51,7 @@ const AddNewTour = () => {
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setFormValues({ ...formValues, [name]: value });
+    console.log(`>>> Check formValues from TourAddNew: `, formValues);
   };
 
   // Xử lý thay đổi khi chọn ảnh
@@ -204,7 +204,7 @@ const AddNewTour = () => {
             Start Time
           </label>
           <input
-            type="time"
+            type="datetime-local"
             name="startTime"
             value={formValues.startTime}
             onChange={handleInputChange}
@@ -219,22 +219,9 @@ const AddNewTour = () => {
             End Time
           </label>
           <input
-            type="time"
+            type="datetime-local"
             name="endTime"
             value={formValues.endTime}
-            onChange={handleInputChange}
-            className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none"
-            required
-          />
-        </div>
-
-        {/* Date */}
-        <div className="mb-4">
-          <label className="block text-gray-700 font-medium mb-2">Date</label>
-          <input
-            type="date"
-            name="date"
-            value={formValues.date}
             onChange={handleInputChange}
             className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none"
             required

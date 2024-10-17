@@ -1,22 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-
-// Giả sử bạn có một hàm lấy thông tin người dùng theo id (thay thế bằng hàm thực tế)
-const fetchUserData = async (id) => {
-  // Thay thế với gọi API thực tế để lấy thông tin người dùng
-  // Dưới đây là dữ liệu mẫu
-  return {
-    fullName: "Ngo Huynh Tan loc",
-    address: "Ho Chi Minh City",
-    email: "locnht.it@example.com",
-    phone: "0901234567",
-    role: "Admin", // hoặc "Admin"
-    dateOfBirth: "2003-11-23",
-    avatar:
-      "https://scontent.fsgn2-7.fna.fbcdn.net/v/t39.30808-6/378014342_1996203014082143_1181191835414672378_n.jpg?_nc_cat=108&ccb=1-7&_nc_sid=6ee11a&_nc_ohc=eU22345q1bEQ7kNvgFhHzdL&_nc_ht=scontent.fsgn2-7.fna&_nc_gid=AQOREiXq4t1NgtD7S31-dMa&oh=00_AYBWWuhtEwOJwsRI2CyMGhBt9twXMbX_pTf3I-YerXEBFQ&oe=6705890A", // Thay thế bằng URL hình ảnh thực tế
-    gender: "Male", // Có thể là "Male", "Female", "Others"
-  };
-};
+import { getUserDetails } from "../auth/AuthContext"; // Lấy từ localStorage
+import getUserRole from "../../lib/utils/UserRole";
 
 const ProfilePage = () => {
   const { id } = useParams(); // Lấy id từ URL
@@ -24,19 +9,24 @@ const ProfilePage = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    const loadUserData = async () => {
-      const data = await fetchUserData(id); // Gọi hàm lấy dữ liệu người dùng
-      setUserData(data);
+    const fetchUserData = async () => {
+      const storedUser = getUserDetails(); // Parse JSON từ localStorage
+      setUserData(storedUser);
+      console.log(
+        `>>> Check userDetails from localStorage in ProfilePage: `,
+        storedUser
+      );
     };
-    loadUserData();
-  }, [id]);
+
+    fetchUserData(); // Lấy thông tin user từ localStorage khi component mount
+  }, [id]); // Cập nhật khi id thay đổi
 
   const handleUpdate = () => {
     navigate(`/profiles/edit/${id}`); // Chuyển hướng tới trang chỉnh sửa thông tin với id
   };
 
   const handleChangePassword = () => {
-    navigate(`/change-password`); // Chuyển hướng tới trang thay đổi mật khẩu với id
+    navigate(`/change-password`); // Chuyển hướng tới trang thay đổi mật khẩu
   };
 
   const handleBack = () => {
@@ -60,15 +50,15 @@ const ProfilePage = () => {
         </h1>
         <div className="flex items-center mb-6">
           <img
-            src={userData.avatar}
+            src={userData.image}
             alt="Avatar"
             className="w-32 h-32 rounded-full border border-gray-300"
           />
           <div className="ml-4">
             <h2 className="text-xl font-semibold text-gray-800">
-              {userData.fullName}
+              {userData.fullname}
             </h2>
-            <p className="text-gray-600">{userData.role}</p>
+            <p className="text-gray-600">{getUserRole(userData.role)}</p>
           </div>
         </div>
         <div className="mb-4">
@@ -82,10 +72,6 @@ const ProfilePage = () => {
         <div className="mb-4">
           <strong className="text-gray-800">Address:</strong>
           <p className="text-gray-600">{userData.address}</p>
-        </div>
-        <div className="mb-4">
-          <strong className="text-gray-800">Date of Birth:</strong>
-          <p className="text-gray-600">{userData.dateOfBirth}</p>
         </div>
         <div className="mb-4">
           <strong className="text-gray-800">Gender:</strong>

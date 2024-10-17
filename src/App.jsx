@@ -23,6 +23,9 @@ import ChangePassword from "./components/changepassword/ChangePassword";
 import LogIn from "./components/login/LogIn";
 import { AuthProvider } from "./components/auth/AuthContext";
 import ProtectedRoute from "./ProtectedRoute";
+import Category from "./components/category/Category";
+import CategoryUpdate from "./components/category/CategoryUpdate";
+import CategoryAddNew from "./components/category/CategoryAddNew";
 
 function App() {
   return (
@@ -176,6 +179,34 @@ function App() {
               element={
                 <ProtectedRoute
                   element={<ProvinceUpdate />}
+                  requiredRole={["ADMIN", "STAFF"]}
+                />
+              }
+            />
+
+            <Route
+              path="category"
+              element={
+                <ProtectedRoute
+                  element={<Category />}
+                  requiredRole={["ADMIN", "STAFF"]}
+                />
+              }
+            />
+            <Route
+              path="category/save"
+              element={
+                <ProtectedRoute
+                  element={<CategoryAddNew />}
+                  requiredRole={["ADMIN", "STAFF"]}
+                />
+              }
+            />
+            <Route
+              path="category/update/:id"
+              element={
+                <ProtectedRoute
+                  element={<CategoryUpdate />}
                   requiredRole={["ADMIN", "STAFF"]}
                 />
               }

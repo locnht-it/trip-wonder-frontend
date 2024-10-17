@@ -1,15 +1,27 @@
 import { Popover, Transition, Menu } from "@headlessui/react";
 import classNames from "classnames";
-import React, { Fragment } from "react";
+import React, { Fragment, useEffect, useState } from "react";
 import {
   HiOutlineBell,
   HiOutlineChatAlt,
   HiOutlineSearch,
 } from "react-icons/hi";
 import { useNavigate } from "react-router-dom";
+import { getUserDetails } from "../auth/AuthContext";
 
 const Header = () => {
   const navigate = useNavigate();
+  const [user, setUser] = useState(null); // User ban đầu là null
+
+  useEffect(() => {
+    const fetchUser = async () => {
+      const userDetails = await getUserDetails(); // Đảm bảo lấy thông tin user là bất đồng bộ
+      setUser(userDetails); // Chuyển chuỗi JSON về đối tượng
+      console.log(`>>> Check user from Header: `, userDetails);
+    };
+
+    fetchUser(); // Gọi hàm bất đồng bộ để lấy thông tin người dùng
+  }, [navigate]);
 
   const handleLogout = () => {
     localStorage.clear();
@@ -55,9 +67,7 @@ const Header = () => {
                     <strong className="text-gray-700 font-medium">
                       Messages
                     </strong>
-                    <div className="mt-2 py-1 text-sm">
-                      This is message panel.
-                    </div>
+                    <div className="mt-2 py-1 text-sm">Have a good day.</div>
                   </div>
                 </Popover.Panel>
               </Transition>
@@ -91,7 +101,7 @@ const Header = () => {
                       Notifications
                     </strong>
                     <div className="mt-2 py-1 text-sm">
-                      This is notification panel.
+                      Login successfully! Welcome back.
                     </div>
                   </div>
                 </Popover.Panel>
@@ -102,16 +112,21 @@ const Header = () => {
 
         <Menu as="div" className="relative">
           <div>
+            {/* Kiểm tra xem user đã tồn tại và có image chưa */}
             <Menu.Button className="ml-2 inline-flex rounded-full focus:outline-none focus:ring-2 focus:ring-neutral-400">
               <span className="sr-only">Open user menu</span>
-              <div
-                className="h-10 w-10 rounded-full bg-sky-500 bg-cover bg-no-repeat bg-center"
-                style={{
-                  backgroundImage: `url("https://scontent.fsgn2-7.fna.fbcdn.net/v/t39.30808-6/378014342_1996203014082143_1181191835414672378_n.jpg?_nc_cat=108&ccb=1-7&_nc_sid=6ee11a&_nc_eui2=AeEvK3EFzE-zpiSfGhuHK27m2I5dajyN0L3Yjl1qPI3QvYzwN-Tdkcfux-3BBrB-kbgjYvxb8ufDLoFo7lfO0orS&_nc_ohc=R_R_hcyQ1xEQ7kNvgFMNLYI&_nc_ht=scontent.fsgn2-7.fna&_nc_gid=ABhGHAiplI80I_aEWWT9rhS&oh=00_AYB8Rko2-X63LQfQyNzG6-DnlSKCFjlojm1F5sseh_V4og&oe=6701240A")`,
-                }}
-              >
-                <span className="sr-only">Loc Ngo</span>
-              </div>
+              {user && user.image ? (
+                <div
+                  className="h-10 w-10 rounded-full bg-cover bg-no-repeat bg-center"
+                  style={{
+                    backgroundImage: `url(${user.image})`,
+                  }}
+                >
+                  <span className="sr-only">{user.fullname}</span>
+                </div>
+              ) : (
+                <div className="h-10 w-10 rounded-full bg-gray-200"></div> // Placeholder nếu chưa có ảnh
+              )}
             </Menu.Button>
           </div>
           <Transition
@@ -131,25 +146,12 @@ const Header = () => {
                       active && `bg-gray-200`,
                       "text-gray-700 focus:bg-gray-200 block cursor-pointer rounded-sm px-4 py-2"
                     )}
-                    onClick={() => navigate(`/profiles/${1}`)}
+                    onClick={() => navigate(`/profiles/${user?.userId}`)}
                   >
                     Your Profile
                   </div>
                 )}
               </Menu.Item>
-              {/* <Menu.Item>
-                {({ active }) => (
-                  <div
-                    className={classNames(
-                      active && `bg-gray-200`,
-                      "text-gray-700 focus:bg-gray-200 block cursor-pointer rounded-sm px-4 py-2"
-                    )}
-                    onClick={() => navigate(`/settings`)}
-                  >
-                    Settings
-                  </div>
-                )}
-              </Menu.Item> */}
               <Menu.Item>
                 {({ active }) => (
                   <div

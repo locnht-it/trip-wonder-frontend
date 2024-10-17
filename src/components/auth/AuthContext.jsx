@@ -7,7 +7,7 @@ export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
 
   useEffect(() => {
-    const token = localStorage.getItem("token");
+    const token = getAuthToken();
     if (token) {
       try {
         const decoded = jwtDecode(token);
@@ -24,14 +24,17 @@ export function AuthProvider({ children }) {
     console.log("Sending data to API:", { login, password });
 
     // API: Login
-    const response = await fetch("http://localhost:8080/api/v1/auth/signin", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        accept: "*/*",
-      },
-      body: JSON.stringify({ login, password }),
-    });
+    const response = await fetch(
+      "https://tripwonder.onrender.com/api/v1/auth/signin",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          accept: "*/*",
+        },
+        body: JSON.stringify({ login, password }),
+      }
+    );
 
     if (!response.ok) {
       console.error("Response Status:", response.status); // Log mã lỗi nếu có
@@ -42,8 +45,10 @@ export function AuthProvider({ children }) {
 
     const data = await response.json(); // Trích xuất dữ liệu JSON từ phản hồi
     console.log("Response Data:", data); // Log dữ liệu phản hồi để kiểm tra
-    localStorage.setItem("token", data.content.token); // Lưu token vào localStorage
-    console.log("Token: " + localStorage.getItem("token"));
+    setAuthToken(data.content.token); // Lưu token vào localStorage
+    setUserDetails(data.content.userDTO);
+    console.log(`>>> Check userDetails: `, getUserDetails());
+    console.log("Token: ", getAuthToken());
     const decoded = jwtDecode(data.content.token);
     console.log("Decoded: ", decoded);
     setUser(decoded);
@@ -61,6 +66,23 @@ export function AuthProvider({ children }) {
     </AuthContext.Provider>
   );
 }
+
+export const getAuthToken = () => {
+  return window.localStorage.getItem("auth_token");
+};
+
+export const setAuthToken = (token) => {
+  window.localStorage.setItem("auth_token", token);
+};
+
+export const setUserDetails = (userDetails) => {
+  window.localStorage.setItem("user", JSON.stringify(userDetails));
+};
+
+export const getUserDetails = () => {
+  const userDetails = window.localStorage.getItem("user");
+  return userDetails ? JSON.parse(userDetails) : null;
+};
 
 export function useAuth() {
   return useContext(AuthContext);

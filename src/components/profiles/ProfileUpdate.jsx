@@ -3,52 +3,43 @@ import { useNavigate, useParams } from "react-router-dom";
 import { storage } from "../../lib/firebase/Firebase";
 import { getDownloadURL, ref, uploadBytes } from "firebase/storage";
 import { v4 } from "uuid";
-import axios from "axios"; // Giả sử bạn sử dụng axios để gọi API
-
-// Giả sử bạn có một hàm lấy thông tin người dùng theo id
-const fetchUserData = async (id) => {
-  // Thay thế bằng gọi API thực tế
-  return {
-    fullName: "Ngo Huynh Tan Loc",
-    address: "Ho Chi Minh City",
-    email: "locnht.it@example.com",
-    phone: "0901234567",
-    role: "Admin", // hoặc "Admin"
-    dateOfBirth: "2003-11-23",
-    avatar:
-      "https://scontent.fsgn2-7.fna.fbcdn.net/v/t39.30808-6/378014342_1996203014082143_1181191835414672378_n.jpg?_nc_cat=108&ccb=1-7&_nc_sid=6ee11a&_nc_ohc=eU22345q1bEQ7kNvgFhHzdL&_nc_ht=scontent.fsgn2-7.fna&_nc_gid=AQOREiXq4t1NgtD7S31-dMa&oh=00_AYBWWuhtEwOJwsRI2CyMGhBt9twXMbX_pTf3I-YerXEBFQ&oe=6705890A", // Thay thế bằng URL hình ảnh thực tế
-    gender: "Male", // Có thể là "Male", "Female", "Others"
-  };
-};
-
-// Giả sử có hàm update thông tin người dùng
-const updateUserProfile = async (id, data) => {
-  // Gọi API để cập nhật dữ liệu
-  // Thay thế bằng API thực tế
-  console.log("Cập nhật thông tin:", data);
-};
+import { toast } from "react-toastify";
+import { editProfile } from "../../api/userApi"; // API để cập nhật hồ sơ người dùng
+import { getUserDetails, setUserDetails } from "../auth/AuthContext";
 
 const ProfileUpdate = () => {
   const { id } = useParams();
   const navigate = useNavigate();
-  const [userData, setUserData] = useState({
-    fullName: "",
-    phone: "",
-    address: "",
-    dateOfBirth: "",
-    gender: "",
-    avatar: "",
-  });
+  const [userData, setUserData] = useState(null);
   const [image, setImage] = useState("");
+  const [errors, setErrors] = useState({});
 
   useEffect(() => {
-    const loadUserData = async () => {
-      const data = await fetchUserData(id);
-      setUserData(data);
-      // setImage(data.avatar); // Hiển thị ảnh avatar hiện tại
-    };
-    loadUserData();
-  }, [id]);
+    // Lấy userDetails từ localStorage
+    const storedUserDetails = getUserDetails();
+    if (storedUserDetails) {
+      console.log(`>>> Check userDetails from ProfileUpdate: `, userData);
+      setUserData(storedUserDetails);
+    } else {
+      // Nếu không có dữ liệu trong localStorage, điều hướng người dùng ra ngoài
+      toast.error("User details not found");
+      navigate("/login");
+    }
+  }, [id, navigate]);
+
+  const validate = () => {
+    let tempErrors = {};
+    if (!userData.fullname.trim())
+      tempErrors.fullName = "Full Name is required";
+    if (!userData.phone) tempErrors.phone = "Phone is required";
+    else if (!/^\d{10,11}$/.test(userData.phone))
+      tempErrors.phone = "Invalid phone number (10-11 digits)";
+    if (!userData.address) tempErrors.address = "Address is required";
+    if (!userData.gender) tempErrors.gender = "Gender is required";
+
+    setErrors(tempErrors);
+    return Object.keys(tempErrors).length === 0;
+  };
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -58,38 +49,76 @@ const ProfileUpdate = () => {
   const handleAvatarChange = (e) => {
     const file = e.target.files[0];
     if (file) {
-      // Tạo một tên file với UUID để đảm bảo là duy nhất
       const imageRef = ref(storage, `images/${file.name + v4()}`);
-
-      // Upload file lên Firebase Storage
       uploadBytes(imageRef, file)
-        .then(() => {
-          // Khi upload thành công, lấy download URL của file đó
-          return getDownloadURL(imageRef);
-        })
+        .then(() => getDownloadURL(imageRef))
         .then((url) => {
-          // Cập nhật URL hình ảnh mới
           setImage(url);
-          setUserData({ ...userData, avatar: url }); // Cập nhật avatar của user
-          console.log(`Image uploaded url: `, url); // In ra URL của ảnh ngay lập tức
+          setUserData({ ...userData, image: url });
         })
         .catch((error) => {
           console.error("Error uploading image:", error);
-          alert("Failed to upload image");
+          toast.error("Failed to upload image");
         });
     }
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log(`Profiles: `, userData);
-    await updateUserProfile(id, userData);
-    navigate(`/profiles/${id}`); // Điều hướng trở lại trang profile sau khi cập nhật
+    // Cập nhật lại thông tin người dùng trong localStorage
+    // Giữ lại các thông tin không thay đổi, cập nhật các trường mới
+    const currentUserData = getUserDetails();
+    if (
+      currentUserData.image === userData.image &&
+      currentUserData.fullname === userData.fullname &&
+      currentUserData.phone === userData.phone &&
+      currentUserData.address === userData.address
+    ) {
+      return; // Không gọi API nếu không có thay đổi
+    }
+    if (validate()) {
+      try {
+        // Chỉ lấy các trường cần thiết để gửi về API
+        const updatedUserData = {
+          id: Number.parseInt(id), // ID của người dùng
+          fullname: userData.fullname, // Tên đầy đủ
+          phone: userData.phone, // Số điện thoại
+          address: userData.address, // Địa chỉ
+          image: userData.image,
+        };
+
+        console.log(
+          `>>> Check profile before call api editProfile: `,
+          updatedUserData
+        );
+
+        // Gửi thông tin đã được chọn về API
+        await editProfile(updatedUserData);
+        toast.success("Profile updated successfully");
+
+        setUserDetails({
+          ...currentUserData, // Giữ các thông tin khác mà không bị thay đổi
+          fullname: userData.fullname, // Cập nhật tên đầy đủ
+          phone: userData.phone, // Cập nhật số điện thoại
+          address: userData.address, // Cập nhật địa chỉ
+          image: userData.image, // Nếu có avatar thì giữ nguyên
+        });
+
+        navigate(`/profiles/${id}`);
+      } catch (error) {
+        console.error("Error updating profile:", error);
+        toast.error("Failed to update profile");
+      }
+    }
   };
 
-  const handleCancel = () => {
-    navigate(`/profiles/${id}`); // Quay lại trang profile mà không lưu thay đổi
-  };
+  if (!userData) {
+    return (
+      <div className="flex items-center justify-center min-h-screen bg-gray-100">
+        <p className="text-lg text-gray-600">Loading...</p>
+      </div>
+    );
+  }
 
   return (
     <div className="flex items-center justify-center p-10 bg-gray-100">
@@ -101,12 +130,13 @@ const ProfileUpdate = () => {
           {/* Avatar */}
           <div className="flex items-center mb-6">
             <img
-              src={image}
+              src={image || userData.image}
               alt="Avatar Preview"
               className="w-32 h-32 rounded-full border border-gray-300"
             />
             <div className="ml-4">
               <input
+                name="image"
                 type="file"
                 accept="image/*"
                 onChange={handleAvatarChange}
@@ -122,12 +152,17 @@ const ProfileUpdate = () => {
             </label>
             <input
               type="text"
-              name="fullName"
-              value={userData.fullName}
+              name="fullname"
+              value={userData.fullname}
               onChange={handleInputChange}
-              className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none"
+              className={`w-full px-3 py-2 border ${
+                errors.fullName ? "border-red-500" : "border-gray-300"
+              } rounded focus:outline-none`}
               required
             />
+            {errors.fullName && (
+              <p className="text-red-500 text-xs mt-1">{errors.fullName}</p>
+            )}
           </div>
 
           {/* Phone */}
@@ -140,9 +175,14 @@ const ProfileUpdate = () => {
               name="phone"
               value={userData.phone}
               onChange={handleInputChange}
-              className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none"
+              className={`w-full px-3 py-2 border ${
+                errors.phone ? "border-red-500" : "border-gray-300"
+              } rounded focus:outline-none`}
               required
             />
+            {errors.phone && (
+              <p className="text-red-500 text-xs mt-1">{errors.phone}</p>
+            )}
           </div>
 
           {/* Address */}
@@ -155,43 +195,14 @@ const ProfileUpdate = () => {
               name="address"
               value={userData.address}
               onChange={handleInputChange}
-              className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none"
+              className={`w-full px-3 py-2 border ${
+                errors.address ? "border-red-500" : "border-gray-300"
+              } rounded focus:outline-none`}
               required
             />
-          </div>
-
-          {/* Date of Birth */}
-          <div className="mb-4">
-            <label className="block text-gray-700 font-medium mb-2">
-              Date of Birth
-            </label>
-            <input
-              type="date"
-              name="dateOfBirth"
-              value={userData.dateOfBirth}
-              onChange={handleInputChange}
-              className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none"
-              required
-            />
-          </div>
-
-          {/* Gender */}
-          <div className="mb-4">
-            <label className="block text-gray-700 font-medium mb-2">
-              Gender
-            </label>
-            <select
-              name="gender"
-              value={userData.gender}
-              onChange={handleInputChange}
-              className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none"
-              required
-            >
-              <option value="">Select Gender</option>
-              <option value="Male">Male</option>
-              <option value="Female">Female</option>
-              <option value="Others">Others</option>
-            </select>
+            {errors.address && (
+              <p className="text-red-500 text-xs mt-1">{errors.address}</p>
+            )}
           </div>
 
           <div className="flex justify-between">
@@ -201,7 +212,6 @@ const ProfileUpdate = () => {
             >
               Back
             </button>
-            {/* Nút "Add New Tour" */}
             <button
               type="submit"
               className="mt-4 px-4 py-2 text-white bg-green-500 rounded hover:bg-green-600 focus:outline-none font-bold"
