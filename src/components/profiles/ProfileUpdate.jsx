@@ -135,12 +135,15 @@ const ProfileUpdate = () => {
               className="w-32 h-32 rounded-full border border-gray-300"
             />
             <div className="ml-4">
+              <label className="block text-gray-700 font-medium mb-2">
+                Avatar
+              </label>
               <input
                 name="image"
                 type="file"
                 accept="image/*"
                 onChange={handleAvatarChange}
-                className="py-2 px-3 border border-gray-300 rounded"
+                className="py-2 px-3 border border-gray-300 rounded mb-5 mr-10"
               />
             </div>
           </div>
