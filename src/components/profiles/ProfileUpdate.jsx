@@ -82,7 +82,7 @@ const ProfileUpdate = () => {
         const updatedUserData = {
           id: Number.parseInt(id), // ID của người dùng
           fullname: userData.fullname, // Tên đầy đủ
-          phone: userData.phone, // Số điện thoại
+          phoneNumber: userData.phone, // Số điện thoại
           address: userData.address, // Địa chỉ
           image: userData.image,
         };
