@@ -20,7 +20,7 @@ const CustomerNumberChart = ({ year }) => {
       const chartData = [];
 
       // Gọi API cho từng tháng trong năm
-      for (let month = 1; month <= 10; month++) {
+      for (let month = 1; month <= 11; month++) {
         const promise = getNumberOfCustomerForEachMonth(month, 2024)
           .then((response) => {
             // Log đúng dữ liệu trả về
