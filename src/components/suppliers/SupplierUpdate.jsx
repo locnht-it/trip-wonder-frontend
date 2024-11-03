@@ -1,38 +1,47 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
+import { getSupplierById, updateSupplier } from "../../api/supplierApi";
+import { toast } from "react-toastify";
 
 const UpdateSupplier = () => {
-  const { id } = useParams(); // Lấy ID của supplier từ URL
+  const { id } = useParams(); // Get the supplier ID from the URL
   const navigate = useNavigate();
 
-  // State quản lý thông tin của supplier
+  // State to manage supplier details
   const [supplier, setSupplier] = useState({
     name: "",
     contactEmail: "",
     contactPhone: "",
     address: "",
-    status: "Active", // Mặc định là Active
+    status: "Active", // Default status
   });
 
-  // Giả sử bạn có một hàm để lấy chi tiết supplier theo id
+  // Fetch supplier data by ID on component mount
   useEffect(() => {
-    // Giả lập gọi API hoặc lấy dữ liệu từ server
-    const fetchSupplier = async () => {
-      // Ví dụ data giả lập
-      const data = {
-        id,
-        name: `VietTravel`,
-        contactEmail: `viettravel@gmail.com`,
-        contactPhone: `0911000001`,
-        address: `Ho Chi Minh City`,
-        status: `Active`,
-      };
-      setSupplier(data);
-    };
-    fetchSupplier();
-  }, [id]);
+    const fetchSupplierDetails = async () => {
+      const response = await getSupplierById(id);
+      console.log(`>>> Check response from API getSupplierById: `, response);
+      const fetchedsupplier = response.data.content;
+      if (fetchedsupplier) {
+        // Convert boolean status to "active"/"inactive"
+        const statusString = fetchedsupplier.status ? "Active" : "Inactive";
 
-  // Xử lý khi form thay đổi
+        // Set the supplier data with the modified status
+        setSupplier({ ...fetchedsupplier, status: statusString });
+        console.log(
+          `>>> Check supplier from Supplier Details: `,
+          fetchedsupplier
+        );
+      } else {
+        alert("Failed to load supplier details");
+        navigate("/suppliers"); // Redirect to suppliers page if fetch fails
+      }
+    };
+
+    fetchSupplierDetails();
+  }, [id, navigate]);
+
+  // Handle form field changes
   const handleChange = (e) => {
     const { name, value } = e.target;
     setSupplier({
@@ -41,23 +50,38 @@ const UpdateSupplier = () => {
     });
   };
 
-  // Xử lý cập nhật supplier
-  const handleSubmit = (e) => {
+  // Handle supplier update
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    // Gửi yêu cầu cập nhật đến server
-    console.log("Updated supplier:", supplier);
-    // Điều hướng về trang quản lý nhà cung cấp sau khi cập nhật
-    navigate("/suppliers");
+
+    try {
+      // Convert status from string to boolean before sending to the API
+      const updatedSupplier = {
+        ...supplier,
+        id, // Include supplier ID in the payload
+        status: supplier.status === "Active" ? true : false, // Convert back to boolean
+      };
+
+      // Call the update API
+      await updateSupplier(updatedSupplier);
+      console.log("Updated supplier:", updatedSupplier);
+      toast.success("Supplier updated successfully");
+      // Navigate back to supplier details or list after update
+      navigate(`/suppliers/${id}`);
+    } catch (error) {
+      console.error("Error updating supplier:", error);
+      alert("Failed to update supplier. Please try again.");
+    }
   };
 
-  // Xử lý quay lại trang trước đó
+  // Handle back navigation
   const handleBack = () => {
-    navigate(-1); // Quay lại trang trước đó
+    navigate(-1); // Go back to the previous page
   };
 
   return (
     <div className="max-w-3xl mx-auto p-6 bg-white shadow-lg rounded-lg">
-      {/* Tiêu đề Update Supplier ở giữa */}
+      {/* Update Supplier title */}
       <h2 className="text-2xl font-bold text-center mb-6">Update Supplier</h2>
 
       <form onSubmit={handleSubmit}>

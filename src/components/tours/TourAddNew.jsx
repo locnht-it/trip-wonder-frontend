@@ -4,11 +4,16 @@ import { useNavigate } from "react-router-dom";
 import { storage } from "../../lib/firebase/Firebase";
 import { getDownloadURL, ref, uploadBytes } from "firebase/storage";
 import { v4 } from "uuid";
+import { listCategories } from "../../api/categoryApi";
+import { listProvinces } from "../../api/provinceApi";
+import { listSuppliers } from "../../api/supplierApi";
+import { createTour } from "../../api/tourApi";
+import { getUserDetails } from "../auth/AuthContext";
+import { toast } from "react-toastify";
 
 const AddNewTour = () => {
   const navigate = useNavigate();
 
-  // State để giữ các giá trị của form
   const [formValues, setFormValues] = useState({
     name: "",
     description: "",
@@ -16,36 +21,39 @@ const AddNewTour = () => {
     price: "",
     startTime: "",
     endTime: "",
+    attendance: "",
     status: "",
     category: "",
     province: "",
     supplier: "",
-    images: [], // Thêm state để lưu trữ danh sách ảnh
+    images: [],
+    rating: "",
   });
 
-  // State để giữ danh sách từ API
   const [categories, setCategories] = useState([]);
   const [provinces, setProvinces] = useState([]);
   const [suppliers, setSuppliers] = useState([]);
   const [images, setImages] = useState([]);
-  const [uploadStatus, setUploadStatus] = useState(null); // Quản lý trạng thái upload file
+  const [uploadStatus, setUploadStatus] = useState(null);
+  const [user, setUser] = useState();
 
-  // Sử dụng useEffect để lấy dữ liệu từ API khi component được mount
-  // useEffect(() => {
-  //   // Giả lập việc gọi API để lấy dữ liệu cho các trường
-  //   axios
-  //     .get("/api/categories")
-  //     .then((response) => setCategories(response.data));
-  //   axios.get("/api/provinces").then((response) => setProvinces(response.data));
-  //   axios.get("/api/suppliers").then((response) => setSuppliers(response.data));
-  // }, []);
+  useEffect(() => {
+    setUser(getUserDetails());
+    // Fetch categories
+    listCategories(1, 1000)
+      .then((response) => setCategories(response.data.content))
+      .catch((error) => console.error("Error fetching categories:", error));
 
-  // Xử lý submit form
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    console.log("Form Data Submitted: ", formValues);
-    // Thêm logic để gửi dữ liệu (ví dụ: gọi API)
-  };
+    // Fetch provinces
+    listProvinces(1, 1000)
+      .then((response) => setProvinces(response.data.content))
+      .catch((error) => console.error("Error fetching provinces:", error));
+
+    // Fetch suppliers
+    listSuppliers(0, 1000)
+      .then((response) => setSuppliers(response.data.content.content))
+      .catch((error) => console.error("Error fetching suppliers:", error));
+  }, []);
 
   // Xử lý thay đổi input
   const handleInputChange = (e) => {
@@ -54,37 +62,30 @@ const AddNewTour = () => {
     console.log(`>>> Check formValues from TourAddNew: `, formValues);
   };
 
-  // Xử lý thay đổi khi chọn ảnh
+  // Handle image upload
   const handleImagesChange = (e) => {
-    const files = e.target.files; // Lấy danh sách các file đã chọn
+    const files = e.target.files;
     if (files.length > 0) {
       const uploadPromises = [];
       const urls = [];
 
-      // Duyệt qua từng file để upload lên Firebase Storage
       Array.from(files).forEach((file) => {
         const imageRef = ref(storage, `images/${file.name + v4()}`);
-
-        // Đẩy từng file lên Firebase Storage và lưu promise vào mảng
         const uploadTask = uploadBytes(imageRef, file)
           .then(() => getDownloadURL(imageRef))
           .then((url) => {
-            urls.push(url); // Lưu URL của file đã upload
+            urls.push(url);
           })
           .catch((error) => {
             console.error("Error uploading image:", error);
             alert("Failed to upload image");
           });
-
-        uploadPromises.push(uploadTask); // Thêm promise vào mảng
+        uploadPromises.push(uploadTask);
       });
 
-      // Chờ cho tất cả các file được upload xong
       Promise.all(uploadPromises)
         .then(() => {
-          // Cập nhật các URL đã upload vào state
-          setImages(urls); // Cập nhật mảng URL
-          console.log("Uploaded images: ", urls); // In ra các URL
+          setImages(urls);
         })
         .catch((error) => {
           console.error("Error uploading one or more images:", error);
@@ -117,27 +118,49 @@ const AddNewTour = () => {
     }
   };
 
+  // Handle form submission
+  // Handle form submission
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    const tourData = {
+      name: formValues.name,
+      description: formValues.description,
+      shortDescription: formValues.shortDescription,
+      price: Number(formValues.price),
+      startTime: formValues.startTime,
+      endTime: formValues.endTime,
+      attendance: Number(formValues.attendance),
+      status: formValues.status === "active", // Convert status to boolean
+      categoryId: Number(formValues.category),
+      provinceId: Number(formValues.province),
+      ratingReviews: Number(formValues.rating),
+      galleries: images, // Use uploaded images
+      supplierId: formValues.supplier,
+      staffId: user?.userId, // Include userId if available
+    };
+
+    console.log(">>> Submitting tour data:", tourData);
+
+    try {
+      await createTour(tourData);
+      navigate("/tours"); // Redirect after success
+      toast.success("Tour created successfully!");
+    } catch (error) {
+      console.error("Error creating tour:", error);
+      toast.error("Failed to create tour.");
+    }
+  };
+
+  const handleBack = () => {
+    navigate("/tours");
+  };
+
   return (
     <div className="max-w-xl mx-auto p-6 bg-white shadow-md rounded">
       {/* Tiêu đề và nút Upload Excel */}
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-bold">Add New Tour</h1>
-        {/* Nút chọn file Excel nằm bên phải */}
-        <div>
-          <label className="relative inline-block px-4 py-2 bg-blue-500 text-white font-bold rounded-lg cursor-pointer hover:bg-blue-600">
-            Upload File
-            <input
-              type="file"
-              accept=".xlsx, .xls"
-              onChange={handleFileUpload}
-              className="absolute inset-0 opacity-0 cursor-pointer"
-            />
-          </label>
-          {uploadStatus && (
-            <p className="mt-2 text-sm text-gray-600">{uploadStatus}</p>
-          )}
-        </div>
-      </div>
+
+      <h1 className="text-2xl font-bold text-center mb-3">Add New Tour</h1>
 
       <form onSubmit={handleSubmit}>
         {/* Name */}
@@ -181,6 +204,22 @@ const AddNewTour = () => {
             onChange={handleInputChange}
             className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none"
             placeholder="Enter short description"
+          />
+        </div>
+
+        {/* Attendance */}
+        <div className="mb-4">
+          <label className="block text-gray-700 font-medium mb-2">
+            Attendance
+          </label>
+          <input
+            type="number"
+            name="attendance"
+            value={formValues.attendance}
+            onChange={handleInputChange}
+            className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none"
+            placeholder="Enter attendance"
+            required
           />
         </div>
 
@@ -306,16 +345,33 @@ const AddNewTour = () => {
           </select>
         </div>
 
-        {/* Upload Images */}
+        {/* Rating */}
         <div className="mb-4">
           <label className="block text-gray-700 font-medium mb-2">
-            Upload Images
+            Rating (1: bad - 5: very good)
           </label>
           <input
+            type="number"
+            name="rating"
+            value={formValues.rating}
+            onChange={handleInputChange}
+            min="1"
+            max="5"
+            className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none"
+            placeholder="Enter rating (1-5)"
+            required
+          />
+        </div>
+
+        {/* Images */}
+        <div className="mb-4">
+          <label className="block text-gray-700 font-medium mb-2">Images</label>
+          <input
             type="file"
+            accept="image/*"
             multiple
             onChange={handleImagesChange}
-            className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none"
+            className="w-full border border-gray-300 rounded p-2"
           />
         </div>
 
@@ -340,15 +396,15 @@ const AddNewTour = () => {
 
         <div className="flex justify-between">
           <button
-            className="mt-4 px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-600 focus:outline-none"
-            onClick={() => navigate(-1)}
+            type="button"
+            className="px-6 py-2 bg-gray-500 text-white font-bold rounded hover:bg-gray-700"
+            onClick={handleBack}
           >
             Back
           </button>
-          {/* Nút "Add New Tour" */}
           <button
             type="submit"
-            className="mt-4 px-4 py-2 text-white bg-green-500 rounded hover:bg-green-600 focus:outline-none font-bold"
+            className="px-6 py-2 bg-green-500 text-white font-bold rounded hover:bg-green-700"
           >
             Add New Tour
           </button>

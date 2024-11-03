@@ -20,23 +20,41 @@ export const listCategories = (page, limit) => {
 };
 
 export const deleteCategory = (categoryId) => {
-  return axios.delete(REST_API_BASE_URL + "/category/delete/" + categoryId, {
-    headers: getHeaders(),
-  });
+  return axios.post(
+    `${REST_API_BASE_URL}/category/delete`,
+    null, // Body can be null since we're only sending parameters
+    {
+      params: {
+        id: categoryId,
+      },
+      headers: getHeaders(),
+    }
+  );
 };
 
 export const createCategory = (category) => {
-  return axios.post(REST_API_BASE_URL + "/category/save", category, {
+  const name = encodeURIComponent(category.name); // Mã hóa tên
+  return axios.post(`${REST_API_BASE_URL}/category/create?name=${name}`, null, {
     headers: getHeaders(),
   });
 };
 
 export const updateCategory = (categoryId, category) => {
-  return axios.put(
-    REST_API_BASE_URL + "/destination/update/" + categoryId,
-    category,
+  return axios.post(
+    `${REST_API_BASE_URL}/category/update`,
+    null, // Body can be null since we're only sending parameters
     {
+      params: {
+        id: categoryId,
+        name: category.name,
+      },
       headers: getHeaders(),
     }
   );
+};
+
+export const getNumberCategories = () => {
+  return axios.get(REST_API_BASE_URL + "/category/get-number-of-category", {
+    headers: getHeaders(),
+  });
 };

@@ -61,9 +61,7 @@ const UserAddNew = () => {
 
   return (
     <div className="max-w-lg mx-auto p-6 bg-white shadow-md rounded-lg">
-      <h1 className="text-3xl font-bold text-center mb-6">
-        Create New Account
-      </h1>
+      <h1 className="text-3xl font-bold text-center mb-6">Add New Account</h1>
 
       <form onSubmit={handleSubmit}>
         {/* Chọn Avatar */}

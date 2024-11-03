@@ -1,24 +1,20 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import axios from "axios"; // Thêm axios để gửi request
+import { createSupplier } from "../../api/supplierApi";
 
 const SupplierAddNew = () => {
   const navigate = useNavigate();
 
-  // State quản lý thông tin của supplier
+  // State to manage supplier information
   const [supplier, setSupplier] = useState({
     name: "",
     contactEmail: "",
     contactPhone: "",
     address: "",
-    status: "Active", // Mặc định là Active
+    status: "Active", // Default to Active
   });
 
-  // State quản lý file Excel
-  const [file, setFile] = useState(null);
-  const [uploadStatus, setUploadStatus] = useState(null); // Để quản lý trạng thái upload file
-
-  // Xử lý khi form thay đổi
+  // Handle form input changes
   const handleChange = (e) => {
     const { name, value } = e.target;
     setSupplier({
@@ -27,75 +23,37 @@ const SupplierAddNew = () => {
     });
   };
 
-  // Xử lý khi file Excel được chọn
-  const handleFileChange = async (e) => {
-    const selectedFile = e.target.files[0];
-    setFile(selectedFile); // Lưu file vào state
-
-    if (selectedFile) {
-      const formData = new FormData();
-      formData.append("file", selectedFile);
-
-      try {
-        setUploadStatus("Uploading...");
-        // Gửi file lên server
-        await axios.post("/api/upload", formData, {
-          headers: {
-            "Content-Type": "multipart/form-data",
-          },
-        });
-
-        setUploadStatus("Upload successful!");
-      } catch (error) {
-        console.error("Error uploading file:", error);
-        setUploadStatus("Upload failed.");
-      }
-    }
-  };
-
-  // Xử lý tạo mới supplier
+  // Handle form submission to create a new supplier
   const handleSubmit = async (e) => {
     e.preventDefault();
 
     try {
-      // Gửi yêu cầu tạo mới đến server
-      await axios.post("/api/suppliers", supplier);
-      console.log("New supplier:", supplier);
+      // Convert status from string to boolean
+      const supplierToCreate = {
+        ...supplier,
+        status: supplier.status === "Active" ? true : false,
+      };
 
-      // Điều hướng về trang quản lý nhà cung cấp sau khi tạo mới
+      // Call the API to create a new supplier
+      await createSupplier(supplierToCreate);
+      console.log("New supplier created:", supplierToCreate);
+
+      // Navigate back to the suppliers page after successful creation
       navigate("/suppliers");
     } catch (error) {
       console.error("Error creating supplier:", error);
+      alert("Failed to create supplier. Please try again.");
     }
   };
 
-  // Xử lý quay lại trang trước đó
+  // Handle back button click
   const handleBack = () => {
-    navigate(-1); // Quay lại trang trước đó
+    navigate(-1); // Go back to the previous page
   };
 
   return (
     <div className="max-w-3xl mx-auto p-6 bg-white shadow-lg rounded-lg">
-      {/* Tiêu đề Create Supplier ở giữa */}
-      <div className="flex justify-between items-center mb-6 w-full">
-        <h2 className="text-2xl font-bold">Create Supplier</h2>
-
-        {/* Nút chọn file Excel nằm bên phải */}
-        <div>
-          <label className="relative inline-block px-4 py-2 bg-blue-500 text-white font-bold rounded-lg cursor-pointer hover:bg-blue-600">
-            Upload File
-            <input
-              type="file"
-              accept=".xlsx, .xls"
-              onChange={handleFileChange}
-              className="absolute inset-0 opacity-0 cursor-pointer"
-            />
-          </label>
-          {uploadStatus && (
-            <p className="mt-2 text-sm text-gray-600">{uploadStatus}</p>
-          )}
-        </div>
-      </div>
+      <h2 className="text-2xl font-bold text-center">Add New Supplier</h2>
 
       <form onSubmit={handleSubmit}>
         <div className="mb-4">
@@ -172,7 +130,7 @@ const SupplierAddNew = () => {
             type="submit"
             className="px-6 py-2 bg-green-500 text-white font-bold rounded hover:bg-green-700"
           >
-            Create Supplier
+            Add New Supplier
           </button>
         </div>
       </form>

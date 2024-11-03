@@ -1,84 +1,62 @@
 import React, { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom"; // Dùng useNavigate thay vì useHistory
+import { useNavigate, useParams } from "react-router-dom";
+import { getTourById } from "../../api/tourApi";
+import { toast } from "react-toastify";
 
-const TourDetail = ({ tourId }) => {
+const TourDetail = () => {
+  const { id } = useParams();
   const [tour, setTour] = useState(null);
-  const navigate = useNavigate(); // Sử dụng useNavigate để điều hướng
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const navigate = useNavigate();
 
-  // Fake data cho một tour cụ thể
-  const fakeTourData = {
-    id: 1,
-    name: "Amazing Vietnam Tour",
-    description:
-      "Explore the beautiful landscapes and vibrant culture of Vietnam on this comprehensive tour. You'll visit famous landmarks, enjoy local cuisine, and experience the country's rich history.",
-    shortDescription: "A wonderful tour of Vietnam's most iconic destinations.",
-    price: 1200,
-    startTime: "08:00 AM",
-    endTime: "05:00 PM",
-    date: "2024-10-05",
-    status: "active", // Thay đổi ở đây
-    category: "Cultural",
-    province: "Hanoi",
-    supplier: "Travel Agency X",
-    images: [
-      { url: "https://via.placeholder.com/150" },
-      { url: "https://via.placeholder.com/150" },
-      { url: "https://via.placeholder.com/150" },
-    ],
-    reviews: [
-      // Thêm phần đánh giá
-      {
-        reviewerName: "NamLee",
-        reviewDate: "2024-09-20",
-        rating: 5,
-        comment: "Đỉnh nóc kịch trần tung bay phấp phới",
-        isActive: true,
-      },
-      {
-        reviewerName: "Hieu Chu Nhat",
-        reviewDate: "2024-09-18",
-        rating: 1,
-        comment: "Quá tệ",
-        isActive: true,
-      },
-    ],
+  useEffect(() => {
+    const fetchTour = async () => {
+      try {
+        setLoading(true);
+        console.log("Fetching tour with ID:", id);
+
+        const response = await getTourById(id);
+        console.log(">>> API response from TourDetails:", response);
+
+        if (response && response.data && response.data.content) {
+          setTour(response.data.content);
+        } else {
+          console.error("API response structure is not as expected:", response);
+          setError("Invalid API response format");
+        }
+      } catch (error) {
+        console.error("Error fetching tour details:", error);
+        toast.error("Failed to fetch tour details");
+        setError("Failed to fetch tour details");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    if (id) {
+      fetchTour();
+    }
+  }, [id]);
+
+  const formatDate = (dateString) => {
+    const date = new Date(dateString);
+    const day = String(date.getDate()).padStart(2, "0");
+    const month = String(date.getMonth() + 1).padStart(2, "0"); // Months are zero-based
+    const year = date.getFullYear();
+    return `${day}-${month}-${year}`;
   };
 
-  // Giả lập fetch dữ liệu
-  useEffect(() => {
-    setTour(fakeTourData);
-  }, []);
-
   const handleUpdate = () => {
-    // Điều hướng đến trang cập nhật
     navigate(`/tours/update/${tour.id}`);
   };
 
-  const handleToggleStatus = () => {
-    // Logic để chuyển đổi trạng thái tour
-    const newStatus = tour.status === "active" ? "inactive" : "active";
-    setTour({ ...tour, status: newStatus });
-    alert(
-      `Tour status has been updated to ${
-        newStatus.charAt(0).toUpperCase() + newStatus.slice(1)
-      }!`
-    );
-  };
-
-  const handleToggleReviewStatus = (index) => {
-    // Logic để chuyển đổi trạng thái comment
-    const updatedReviews = [...tour.reviews];
-    updatedReviews[index].isActive = !updatedReviews[index].isActive; // Chuyển đổi trạng thái
-    setTour({ ...tour, reviews: updatedReviews });
-  };
-
-  const handleNavigateToProfile = (reviewerName) => {
-    // Điều hướng đến trang profile của người đánh giá
-    navigate(`/users/${reviewerName}`);
-  };
-
-  if (!tour) {
+  if (loading) {
     return <div>Loading...</div>;
+  }
+
+  if (error) {
+    return <div>{error}</div>;
   }
 
   return (
@@ -86,60 +64,51 @@ const TourDetail = ({ tourId }) => {
       <h1 className="text-3xl font-bold text-center mb-6">Tour Details</h1>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        {/* Tour Name */}
         <div className="mb-4 border border-gray-300 p-3 rounded">
           <label className="block text-gray-700 font-bold mb-2">Name</label>
           <p className="text-lg">{tour.name}</p>
         </div>
 
-        {/* Price */}
         <div className="mb-4 border border-gray-300 p-3 rounded">
           <label className="block text-gray-700 font-bold mb-2">Price</label>
-          <p className="text-lg">{tour.price} USD</p>
-        </div>
-
-        {/* Start Time */}
-        <div className="mb-4 border border-gray-300 p-3 rounded">
-          <label className="block text-gray-700 font-bold mb-2">
-            Start Time
-          </label>
-          <p className="text-lg">{tour.startTime}</p>
-        </div>
-
-        {/* End Time */}
-        <div className="mb-4 border border-gray-300 p-3 rounded">
-          <label className="block text-gray-700 font-bold mb-2">End Time</label>
-          <p className="text-lg">{tour.endTime}</p>
-        </div>
-
-        {/* Status */}
-        <div className="mb-4 border border-gray-300 p-3 rounded">
-          <label className="block text-gray-700 font-bold mb-2">Status</label>
           <p className="text-lg">
-            {tour.status.charAt(0).toUpperCase() + tour.status.slice(1)}
+            {tour.price.toLocaleString("vi-VN", {
+              style: "currency",
+              currency: "VND",
+            })}
           </p>
         </div>
 
-        {/* Category */}
+        <div className="mb-4 border border-gray-300 p-3 rounded">
+          <label className="block text-gray-700 font-bold mb-2">
+            Attendance
+          </label>
+          <p className="text-lg">{tour.attendance}</p>
+        </div>
+
         <div className="mb-4 border border-gray-300 p-3 rounded">
           <label className="block text-gray-700 font-bold mb-2">Category</label>
           <p className="text-lg">{tour.category}</p>
         </div>
 
-        {/* Province */}
+        <div className="mb-4 border border-gray-300 p-3 rounded">
+          <label className="block text-gray-700 font-bold mb-2">
+            Start Time
+          </label>
+          <p className="text-lg">{formatDate(tour.startTime)}</p>
+        </div>
+
+        <div className="mb-4 border border-gray-300 p-3 rounded">
+          <label className="block text-gray-700 font-bold mb-2">End Time</label>
+          <p className="text-lg">{formatDate(tour.endTime)}</p>
+        </div>
+
         <div className="mb-4 border border-gray-300 p-3 rounded">
           <label className="block text-gray-700 font-bold mb-2">Province</label>
           <p className="text-lg">{tour.province}</p>
         </div>
-
-        {/* Supplier */}
-        <div className="mb-4 border border-gray-300 p-3 rounded">
-          <label className="block text-gray-700 font-bold mb-2">Supplier</label>
-          <p className="text-lg">{tour.supplier}</p>
-        </div>
       </div>
 
-      {/* Short Description */}
       <div className="mb-6 border border-gray-300 p-3 rounded">
         <label className="block text-gray-700 font-bold mb-2">
           Short Description
@@ -147,7 +116,6 @@ const TourDetail = ({ tourId }) => {
         <p className="text-lg">{tour.shortDescription}</p>
       </div>
 
-      {/* Description */}
       <div className="mb-6 border border-gray-300 p-3 rounded">
         <label className="block text-gray-700 font-bold mb-2">
           Description
@@ -155,15 +123,14 @@ const TourDetail = ({ tourId }) => {
         <p className="text-lg">{tour.description}</p>
       </div>
 
-      {/* Tour Images */}
       <div className="mb-6 border border-gray-300 p-3 rounded">
         <label className="block text-gray-700 font-bold mb-2">Images</label>
         <div className="flex space-x-4 overflow-x-auto">
-          {tour.images?.length > 0 ? (
-            tour.images.map((image, index) => (
+          {tour.galleries?.length > 0 ? (
+            tour.galleries.map((image, index) => (
               <img
                 key={index}
-                src={image.url}
+                src={image.imageUrl}
                 alt={`Tour Image ${index + 1}`}
                 className="w-32 h-32 object-cover rounded-lg"
               />
@@ -174,40 +141,29 @@ const TourDetail = ({ tourId }) => {
         </div>
       </div>
 
-      {/* Customer Reviews */}
       <div className="mb-6 border border-gray-300 p-3 rounded">
         <h2 className="text-xl font-bold mb-2">Customer Reviews</h2>
-        {tour.reviews && tour.reviews.length > 0 ? (
-          tour.reviews.map((review, index) => (
+        {tour.ratingReviews?.length > 0 ? (
+          tour.ratingReviews.map((review, index) => (
             <div
               key={index}
-              className={`mb-4 border border-gray-200 p-2 rounded ${
-                review.isActive ? "" : "opacity-50"
-              }`}
+              className="mb-4 border border-gray-200 p-2 rounded"
             >
               <p
-                className="font-semibold cursor-pointer text-blue-600"
-                onClick={() => handleNavigateToProfile(review.reviewerName)}
+                className="font-semibold text-blue-600 cursor-pointer hover:text-blue-700"
+                onClick={() => navigate(`/users/${review.user.userId}`)}
               >
-                {review.reviewerName}
+                {review.user.fullname}
               </p>
               <p className="text-gray-600">
-                {new Date(review.reviewDate).toLocaleDateString()}
+                {review.ratingDate
+                  ? formatDate(review.ratingDate)
+                  : "No date provided"}
               </p>
               <p className="text-yellow-500">
                 {"★".repeat(review.rating) + "☆".repeat(5 - review.rating)}
               </p>
-              <p className="text-gray-700">{review.comment}</p>
-              {/* <button
-                className={`mt-2 px-4 py-1 rounded focus:outline-none ${
-                  review.isActive
-                    ? "bg-red-500 text-white hover:bg-red-600"
-                    : "bg-gray-500 text-white hover:bg-gray-600"
-                }`}
-                onClick={() => handleToggleReviewStatus(index)}
-              >
-                {review.isActive ? "Inactive" : "Active"}
-              </button> */}
+              <p className="">{review.feedback}</p>
             </div>
           ))
         ) : (
@@ -215,7 +171,6 @@ const TourDetail = ({ tourId }) => {
         )}
       </div>
 
-      {/* Buttons */}
       <div className="flex justify-between mt-6">
         <button
           className="px-6 py-2 bg-gray-500 text-white rounded hover:bg-gray-600 focus:outline-none"
@@ -230,17 +185,6 @@ const TourDetail = ({ tourId }) => {
             onClick={handleUpdate}
           >
             Update
-          </button>
-
-          <button
-            className={`px-6 py-2 rounded focus:outline-none ${
-              tour.status === "active"
-                ? "bg-red-500 text-white hover:bg-red-600"
-                : "bg-green-500 text-white hover:bg-green-600"
-            }`}
-            onClick={handleToggleStatus}
-          >
-            {tour.status === "active" ? "Inactive" : "Active"}
           </button>
         </div>
       </div>

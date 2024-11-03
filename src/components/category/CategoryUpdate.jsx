@@ -1,27 +1,27 @@
 import React, { useEffect, useState } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate, useParams, useLocation } from "react-router-dom";
+import { updateCategory } from "../../api/categoryApi"; // Import API function
+import { toast } from "react-toastify";
 
 const CategoryUpdate = () => {
   const { id } = useParams();
   const navigate = useNavigate();
+  const location = useLocation();
 
+  // Initialize state
   const [category, setCategory] = useState({
     name: "",
-    quantity: 0,
-    status: "Active",
+    status: "Active", // Default value for status
   });
 
   useEffect(() => {
-    const fetchCategory = async () => {
-      const data = {
-        id,
-        name: `Ve concert`,
-        status: `Active`,
-      };
-      setCategory(data);
-    };
-    fetchCategory();
-  }, [id]);
+    // Check if state is passed
+    if (location.state && location.state.category) {
+      setCategory(location.state.category);
+    } else {
+      console.error("No category data found.");
+    }
+  }, [location.state]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -31,10 +31,17 @@ const CategoryUpdate = () => {
     });
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log("Updated Category:", category);
-    navigate(`/category`);
+    try {
+      // Call update API
+      await updateCategory(id, category); // Pass category data to API
+      console.log("Updated Category:", category);
+      toast.success("Updated Category Successfully!");
+      navigate(`/category`); // Redirect to category list
+    } catch (error) {
+      console.error("Failed to update category:", error);
+    }
   };
 
   const handleBack = () => {
@@ -56,20 +63,6 @@ const CategoryUpdate = () => {
             className="w-full px-3 py-2 border border-gray-300 rounded-lg"
             required
           />
-        </div>
-
-        <div className="mb-4">
-          <label className="block text-gray-700 font-bold">Status</label>
-          <select
-            name="status"
-            value={category.status}
-            onChange={handleChange}
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg"
-            required
-          >
-            <option value="Active">Active</option>
-            <option value="Inactive">Inactive</option>
-          </select>
         </div>
 
         <div className="flex justify-between">

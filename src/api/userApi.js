@@ -14,3 +14,13 @@ export const editProfile = (profile) => {
     headers: getHeaders(),
   });
 };
+
+export const changePassword = (email, password) => {
+  return axios.post(
+    `${REST_API_BASE_URL}/auth/change-password?email=${encodeURIComponent(
+      email
+    )}&password=${encodeURIComponent(password)}`,
+    null,
+    { headers: getHeaders() }
+  );
+};

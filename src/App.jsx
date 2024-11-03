@@ -26,6 +26,7 @@ import ProtectedRoute from "./ProtectedRoute";
 import Category from "./components/category/Category";
 import CategoryUpdate from "./components/category/CategoryUpdate";
 import CategoryAddNew from "./components/category/CategoryAddNew";
+import SupplierDetails from "./components/suppliers/SupplierDetails";
 
 function App() {
   return (
@@ -151,6 +152,15 @@ function App() {
               element={
                 <ProtectedRoute
                   element={<SupplierUpdate />}
+                  requiredRole={["ADMIN", "STAFF"]}
+                />
+              }
+            />
+            <Route
+              path="suppliers/:id"
+              element={
+                <ProtectedRoute
+                  element={<SupplierDetails />}
                   requiredRole={["ADMIN", "STAFF"]}
                 />
               }

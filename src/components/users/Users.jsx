@@ -31,7 +31,7 @@ const userData = [
     id: 4,
     fullName: `Minh Ta`,
     email: `minhminh@gmail.com`,
-    role: `MANAGER`,
+    role: `STAFF`,
     status: `Inactive`,
   },
   {

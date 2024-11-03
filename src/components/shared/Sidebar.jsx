@@ -21,7 +21,7 @@ const Sidebar = () => {
     <div className="bg-neutral-900 w-60 p-3 flex flex-col text-white">
       <div className="flex items-center gap-2 px-1 py-3">
         <img
-          src="./avatar.jpg"
+          src="https://firebasestorage.googleapis.com/v0/b/tripwonder-63139.appspot.com/o/images%2Favatar.jpg15d63347-2795-4265-960f-27892cad57bd?alt=media&token=bcfdb050-66c7-46cb-beaa-d16f63aa0d59"
           alt="Trip Wonder Avatar"
           className="h-10 w-10 rounded-full bg-sky-500 bg-cover bg-no-repeat bg-center"
         />

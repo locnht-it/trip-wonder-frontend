@@ -30,7 +30,7 @@ const ProfilePage = () => {
   };
 
   const handleBack = () => {
-    navigate(-1); // Quay lại trang trước đó
+    navigate(`/`); // Quay lại trang trước đó
   };
 
   // Nếu dữ liệu người dùng chưa được tải, hiển thị loading

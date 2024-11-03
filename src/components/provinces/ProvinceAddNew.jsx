@@ -1,16 +1,16 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { createProvince } from "../../api/provinceApi";
+import { toast } from "react-toastify";
 
 const ProvinceAddNew = () => {
-  const navigate = useNavigate();
-
-  // State quản lý thông tin của supplier
   const [province, setProvince] = useState({
     name: "",
-    status: "Active", // Mặc định là Active
   });
 
-  // Xử lý khi form thay đổi
+  const [error, setError] = useState(null); // Handle any errors
+  const navigate = useNavigate();
+
   const handleChange = (e) => {
     const { name, value } = e.target;
     setProvince({
@@ -19,24 +19,30 @@ const ProvinceAddNew = () => {
     });
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    // Gửi yêu cầu tạo mới đến server
-    console.log("New province:", province);
-    // Điều hướng về trang quản lý nhà cung cấp sau khi tạo mới
-    navigate("/provinces");
+    try {
+      console.log(`>>> Check province new before call api: `, province);
+      const newProvince = await createProvince(province); // Call the API
+      console.log(`>>> Check new province: `, newProvince);
+      toast.success("Province created successfully!");
+      navigate("/provinces"); // Redirect to category list
+    } catch (err) {
+      console.error("Failed to create province:", err);
+      setError(
+        "An error occurred while creating the category. Please try again."
+      ); // Handle error
+    }
   };
 
-  // Xử lý quay lại trang trước đó
   const handleBack = () => {
-    navigate(-1); // Quay lại trang trước đó
+    navigate(-1);
   };
 
   return (
     <div className="max-w-3xl mx-auto p-6 bg-white shadow-lg rounded-lg">
-      {/* Tiêu đề Create Supplier ở giữa */}
-      <h2 className="text-2xl font-bold text-center mb-6">Create Province</h2>
-
+      <h2 className="text-2xl font-bold text-center mb-6">Add New Province</h2>
+      {error && <p className="text-red-500 mb-4">{error}</p>}
       <form onSubmit={handleSubmit}>
         <div className="mb-4">
           <label className="block text-gray-700 font-bold">Name</label>
@@ -48,20 +54,6 @@ const ProvinceAddNew = () => {
             className="w-full px-3 py-2 border border-gray-300 rounded-lg"
             required
           />
-        </div>
-
-        <div className="mb-4">
-          <label className="block text-gray-700 font-bold">Status</label>
-          <select
-            name="status"
-            value={province.status}
-            onChange={handleChange}
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg"
-            required
-          >
-            <option value="Active">Active</option>
-            <option value="Inactive">Inactive</option>
-          </select>
         </div>
 
         <div className="flex justify-between">
@@ -76,7 +68,7 @@ const ProvinceAddNew = () => {
             type="submit"
             className="px-6 py-2 bg-green-500 text-white font-bold rounded hover:bg-green-700"
           >
-            Create Province
+            Add New Province
           </button>
         </div>
       </form>
