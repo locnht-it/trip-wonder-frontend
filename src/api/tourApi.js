@@ -33,3 +33,19 @@ export const getTourById = (id) => {
     headers: getHeaders(),
   });
 };
+
+export const getDetailLocationTourById = (id) => {
+  return axios.get(`${REST_API_BASE_URL}/packageOff/get-detail-tour/${id}`, {
+    headers: getHeaders(),
+  });
+};
+
+export const changeStatusTour = (tourId) => {
+  return axios.post(
+    `${REST_API_BASE_URL}/packageOff/change-status/${tourId}`,
+    null,
+    {
+      headers: getHeaders(),
+    }
+  );
+};

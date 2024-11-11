@@ -1,14 +1,23 @@
 import React, { useState, useEffect } from "react";
-import { useNavigate, useParams } from "react-router-dom";
-import { getTourById } from "../../api/tourApi";
+import { useLocation, useNavigate, useParams } from "react-router-dom";
+import {
+  changeStatusTour,
+  getDetailLocationTourById,
+  getTourById,
+} from "../../api/tourApi";
 import { toast } from "react-toastify";
+import getTourStatus from "../../lib/utils/TourStatus";
 
 const TourDetail = () => {
   const { id } = useParams();
   const [tour, setTour] = useState(null);
+  const [locations, setLocations] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const navigate = useNavigate();
+  const location = useLocation();
+  const queryParams = new URLSearchParams(location.search);
+  const status = queryParams.get("status");
 
   useEffect(() => {
     const fetchTour = async () => {
@@ -16,14 +25,26 @@ const TourDetail = () => {
         setLoading(true);
         console.log("Fetching tour with ID:", id);
 
-        const response = await getTourById(id);
-        console.log(">>> API response from TourDetails:", response);
+        const tourResponse = await getTourById(id);
+        const locationResponse = await getDetailLocationTourById(id);
 
-        if (response && response.data && response.data.content) {
-          setTour(response.data.content);
+        if (tourResponse && tourResponse.data && tourResponse.data.content) {
+          setTour(tourResponse.data.content);
         } else {
-          console.error("API response structure is not as expected:", response);
-          setError("Invalid API response format");
+          setError("Invalid tour data format");
+        }
+
+        if (
+          locationResponse &&
+          locationResponse.data &&
+          locationResponse.data.content
+        ) {
+          const locationsData = locationResponse.data.content["1"];
+          if (Array.isArray(locationsData)) {
+            setLocations(locationsData);
+          } else {
+            setError("Invalid location data format");
+          }
         }
       } catch (error) {
         console.error("Error fetching tour details:", error);
@@ -41,23 +62,26 @@ const TourDetail = () => {
 
   const formatDate = (dateString) => {
     const date = new Date(dateString);
-    const day = String(date.getDate()).padStart(2, "0");
-    const month = String(date.getMonth() + 1).padStart(2, "0"); // Months are zero-based
-    const year = date.getFullYear();
-    return `${day}-${month}-${year}`;
+    return `${String(date.getDate()).padStart(2, "0")}-${String(
+      date.getMonth() + 1
+    ).padStart(2, "0")}-${date.getFullYear()}`;
   };
 
-  const handleUpdate = () => {
-    navigate(`/tours/update/${tour.id}`);
+  const handleChangeStatus = async () => {
+    try {
+      const newStatus = status === "Active" ? "Inactive" : "Active";
+      await changeStatusTour(id);
+      toast.success(`Tour status changed to ${newStatus} successfully`);
+      // Sau khi thay đổi trạng thái, điều hướng lại trang với trạng thái mới
+      navigate(`/tours/${id}?status=${newStatus}`);
+    } catch (error) {
+      console.error("Error changing tour status:", error);
+      toast.error("Failed to change tour status");
+    }
   };
 
-  if (loading) {
-    return <div>Loading...</div>;
-  }
-
-  if (error) {
-    return <div>{error}</div>;
-  }
+  if (loading) return <div>Loading...</div>;
+  if (error) return <div>{error}</div>;
 
   return (
     <div className="max-w-4xl mx-auto p-6 bg-white shadow-md rounded-lg">
@@ -107,6 +131,10 @@ const TourDetail = () => {
           <label className="block text-gray-700 font-bold mb-2">Province</label>
           <p className="text-lg">{tour.province}</p>
         </div>
+        <div className="mb-4 border border-gray-300 p-3 rounded">
+          <label className="block text-gray-700 font-bold mb-2">Status</label>
+          <p className="text-lg">{getTourStatus(status)}</p>
+        </div>
       </div>
 
       <div className="mb-6 border border-gray-300 p-3 rounded">
@@ -142,6 +170,50 @@ const TourDetail = () => {
       </div>
 
       <div className="mb-6 border border-gray-300 p-3 rounded">
+        <h2 className="text-xl font-bold mb-2">Tour Locations</h2>
+        {locations.length > 0 ? (
+          locations.map((location, index) => (
+            <div
+              key={location.id}
+              className="mb-4 border border-gray-200 p-3 rounded"
+            >
+              <p>
+                <strong>Name:</strong> {location.name}
+              </p>
+              <p>
+                <strong>Day:</strong>{" "}
+                {location.dayString.replace("Day:", "").trim()}
+              </p>
+              <p>
+                <strong>Start Date:</strong> {formatDate(location.startDate)}
+              </p>
+              <p>
+                <strong>End Date:</strong> {formatDate(location.endDate)}
+              </p>
+              <p>
+                <strong>Start Time:</strong>{" "}
+                {location.startTime.substring(0, 5)}
+              </p>
+              <p>
+                <strong>End Time:</strong> {location.endTime.substring(0, 5)}
+              </p>
+              <p>
+                <strong>Facilitate:</strong> {location.facilitate}
+              </p>
+              {/* <p>
+                <strong>Latitude:</strong> {location.latitude}
+              </p>
+              <p>
+                <strong>Longitude:</strong> {location.longitude}
+              </p> */}
+            </div>
+          ))
+        ) : (
+          <p>No locations available.</p>
+        )}
+      </div>
+
+      <div className="mb-6 border border-gray-300 p-3 rounded">
         <h2 className="text-xl font-bold mb-2">Customer Reviews</h2>
         {tour.ratingReviews?.length > 0 ? (
           tour.ratingReviews.map((review, index) => (
@@ -174,17 +246,21 @@ const TourDetail = () => {
       <div className="flex justify-between mt-6">
         <button
           className="px-6 py-2 bg-gray-500 text-white rounded hover:bg-gray-600 focus:outline-none"
-          onClick={() => window.history.back()}
+          onClick={() => navigate("/tours")}
         >
           Back
         </button>
 
         <div className="space-x-4">
           <button
-            className="px-6 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 focus:outline-none"
-            onClick={handleUpdate}
+            className={`px-6 py-2 rounded text-white ${
+              status === "Active"
+                ? "bg-red-500 hover:bg-red-600"
+                : "bg-green-500 hover:bg-green-600"
+            }`}
+            onClick={handleChangeStatus}
           >
-            Update
+            {status === "Active" ? "Inactive" : "Active"}
           </button>
         </div>
       </div>

@@ -1,50 +1,52 @@
 import React, { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate, useParams } from "react-router-dom";
+import { getOrderDetail } from "../../api/orderApi";
 
-const OrderDetail = ({ orderId }) => {
+const OrderDetail = () => {
+  const { id } = useParams();
   const [order, setOrder] = useState(null);
-  const [status, setStatus] = useState(""); // Thêm state để lưu trạng thái hiện tại
+  const navigate = useNavigate();
 
-  // Fake dữ liệu cho order chi tiết
-  const fakeOrderData = {
-    orderId: 1,
-    totalPrice: 2400,
-    orderDate: "2024-10-01",
-    customerName: "Nam Lee",
-    status: "Completed",
-    paymentDate: "2024-10-02",
-    paymentMethod: "Credit Card",
-    tours: [
-      {
-        tourId: 1,
-        tourName: "Amazing Vietnam Tour",
-        unitPrice: 1200,
-        quantity: 1,
-      },
-      {
-        tourId: 2,
-        tourName: "Explore the Mekong Delta",
-        unitPrice: 600,
-        quantity: 2,
-      },
-    ],
+  const formatDate = (dateString) => {
+    const date = new Date(dateString);
+    const day = String(date.getDate()).padStart(2, "0");
+    const month = String(date.getMonth() + 1).padStart(2, "0"); // Months are zero-based
+    const year = date.getFullYear();
+    return `${day}-${month}-${year}`;
   };
 
   useEffect(() => {
-    // Giả lập fetch dữ liệu từ API
-    setOrder(fakeOrderData);
-    setStatus(fakeOrderData.status); // Khởi tạo trạng thái hiện tại của order
-  }, []);
+    const fetchOrderDetail = async () => {
+      try {
+        const response = await getOrderDetail(id);
+        const data = response.data.content;
 
-  const handleStatusChange = (event) => {
-    setStatus(event.target.value); // Cập nhật trạng thái khi chọn
-  };
+        // Map dữ liệu từ API sang state order
+        const formattedOrder = {
+          orderId: data.id,
+          totalPrice: data.totalPrice,
+          orderDate: data.orderDate,
+          customerName: data.user.fullname,
+          customerId: data.user.userId,
+          status: data.status,
+          paymentDate: data.paymentDate,
+          paymentMethod: data.paymentMethod,
+          tours: data.orderDetails.map((detail) => ({
+            tourId: detail.packageId,
+            tourName: detail.packageName,
+            unitPrice: detail.packagePrice,
+            quantity: detail.quantity,
+          })),
+        };
 
-  const handleStatusUpdate = () => {
-    // Giả lập cập nhật trạng thái (gửi request đến API trong thực tế)
-    setOrder({ ...order, status });
-    alert(`Order status has been updated to ${status}!`);
-  };
+        setOrder(formattedOrder);
+      } catch (error) {
+        console.error("Failed to fetch order detail:", error);
+      }
+    };
+
+    fetchOrderDetail();
+  }, [id]);
 
   if (!order) {
     return <div>Loading...</div>;
@@ -65,25 +67,23 @@ const OrderDetail = ({ orderId }) => {
           <label className="block text-gray-700 font-bold mb-2">
             Customer Name
           </label>
-          <p className="text-lg">{order.customerName}</p>
+          <p className="text-lg">
+            <Link to={`/users/${order.customerId}`}>{order.customerName}</Link>
+          </p>
         </div>
 
         <div className="border border-gray-300 p-3 rounded">
           <label className="block text-gray-700 font-bold mb-2">
             Order Date
           </label>
-          <p className="text-lg">
-            {new Date(order.orderDate).toLocaleDateString()}
-          </p>
+          <p className="text-lg">{formatDate(order.orderDate)}</p>
         </div>
 
         <div className="border border-gray-300 p-3 rounded">
           <label className="block text-gray-700 font-bold mb-2">
             Payment Date
           </label>
-          <p className="text-lg">
-            {new Date(order.paymentDate).toLocaleDateString()}
-          </p>
+          <p className="text-lg">{formatDate(order.paymentDate)}</p>
         </div>
 
         <div className="border border-gray-300 p-3 rounded">
@@ -97,28 +97,17 @@ const OrderDetail = ({ orderId }) => {
           <label className="block text-gray-700 font-bold mb-2">
             Total Price
           </label>
-          <p className="text-lg">{order.totalPrice} USD</p>
+          <p className="text-lg">
+            {order.totalPrice.toLocaleString("vi-VN", {
+              style: "currency",
+              currency: "VND",
+            })}
+          </p>
         </div>
 
-        {/* Trạng thái order với chức năng cập nhật */}
         <div className="border border-gray-300 p-3 rounded">
           <label className="block text-gray-700 font-bold mb-2">Status</label>
-          <select
-            value={status}
-            onChange={handleStatusChange}
-            className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none"
-          >
-            <option value="Pending">Pending</option>
-            <option value="Processing">Processing</option>
-            <option value="Completed">Completed</option>
-            <option value="Cancelled">Cancelled</option>
-          </select>
-          <button
-            onClick={handleStatusUpdate}
-            className="mt-3 px-6 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 focus:outline-none"
-          >
-            Update Status
-          </button>
+          <p className="text-lg">{order.status}</p>
         </div>
       </div>
 
@@ -135,17 +124,20 @@ const OrderDetail = ({ orderId }) => {
                 <label className="block text-gray-700 font-bold mb-2">
                   Tour Name
                 </label>
-                <p className="text-lg">
-                  <div class="text-lg text-blue-900">
-                    <Link to={`/tours/${tour.tourId}`}>{tour.tourName}</Link>
-                  </div>
-                </p>
+                <div className="text-lg text-blue-900">
+                  <Link to={`/tours/${tour.tourId}`}>{tour.tourName}</Link>
+                </div>
               </div>
               <div>
                 <label className="block text-gray-700 font-bold mb-2">
                   Unit Price
                 </label>
-                <p className="text-lg">{tour.unitPrice} USD</p>
+                <p className="text-lg">
+                  {tour.unitPrice.toLocaleString("vi-VN", {
+                    style: "currency",
+                    currency: "VND",
+                  })}
+                </p>
               </div>
               <div>
                 <label className="block text-gray-700 font-bold mb-2">
@@ -158,11 +150,10 @@ const OrderDetail = ({ orderId }) => {
         </div>
       </div>
 
-      {/* Nút Back */}
-      <div className="flex justify-start">
+      <div className="flex justify-between">
         <button
-          className="px-6 py-2 bg-gray-500 text-white rounded hover:bg-gray-600 focus:outline-none"
-          onClick={() => window.history.back()}
+          className="px-6 py-2 bg-gray-500 text-white rounded hover:bg-gray-600"
+          onClick={() => navigate("/orders")}
         >
           Back
         </button>

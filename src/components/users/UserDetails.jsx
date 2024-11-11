@@ -1,38 +1,60 @@
 import React, { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate, useParams } from "react-router-dom";
+import { getUserById, changeStatusUser } from "../../api/userApi"; // Import API changeStatusUser
+import getUserRole from "../../lib/utils/UserRole";
+import getUserStatus from "../../lib/utils/UserStatus";
+import { toast } from "react-toastify";
 
-const UserDetails = ({ accountId }) => {
+const UserDetails = () => {
+  const { id } = useParams(); // Lấy accountId từ URL
   const [account, setAccount] = useState(null);
   const navigate = useNavigate();
+  const location = useLocation();
+  const queryParams = new URLSearchParams(location.search);
+  const status = queryParams.get("status");
 
-  // Fake data cho account
-  const fakeAccountData = {
-    id: 1,
-    avatar: "https://via.placeholder.com/150",
-    fullName: "John Doe",
-    address: "123 Street, City",
-    email: "johndoe@example.com",
-    phone: "123-456-7890",
-    dob: "1990-01-01",
-    role: "ADMIN",
-    gender: "Male",
-    status: "active", // active or inactive
-  };
-
-  // Giả lập fetch dữ liệu
+  // Fetch data từ API
   useEffect(() => {
-    setAccount(fakeAccountData); // Giả lập fetch data từ API
-  }, [accountId]);
+    const fetchUser = async () => {
+      try {
+        const response = await getUserById(id); // Gọi API getUserById
+        setAccount({ ...response.data.content, status: status }); // Giả sử API trả về đối tượng người dùng
+      } catch (error) {
+        console.error("Error fetching user data:", error);
+        alert("Failed to fetch user data");
+      }
+    };
 
-  const handleToggleStatus = () => {
-    // Logic để chuyển đổi trạng thái account
-    const newStatus = account.status === "active" ? "inactive" : "active";
-    setAccount({ ...account, status: newStatus });
-    alert(
-      `Account status has been updated to ${
-        newStatus.charAt(0).toUpperCase() + newStatus.slice(1)
-      }!`
-    );
+    fetchUser();
+  }, [id, status]);
+
+  const handleToggleStatus = async () => {
+    const newStatus = account.status === "Active" ? "Inactive" : "Active";
+    try {
+      // Gọi API changeStatusUser để cập nhật trạng thái người dùng
+      const response = await changeStatusUser(id);
+      // Kiểm tra phản hồi từ API
+      if (response.data.content === true) {
+        // Nếu content là true, trạng thái là Inactive
+        setAccount({ ...account, status: "Inactive" });
+        toast.success("Account status has been updated to Inactive!");
+      } else if (response.data.content === false) {
+        // Nếu content là false, trạng thái là Active
+        setAccount({ ...account, status: "Active" });
+        toast.success("Account status has been updated to Active!");
+      } else {
+        toast.error("Unexpected response from the API.");
+      }
+
+      // Cập nhật URL với tham số status mới
+      navigate({
+        pathname: location.pathname, // Giữ nguyên đường dẫn hiện tại
+        search: `?status=${newStatus}`, // Cập nhật tham số status
+      });
+    } catch (error) {
+      console.error("Error updating user status:", error);
+      toast.error("Failed to update user status");
+    }
   };
 
   if (!account) {
@@ -46,7 +68,7 @@ const UserDetails = ({ accountId }) => {
       {/* Avatar */}
       <div className="mb-6 text-center">
         <img
-          src={account.avatar}
+          src={account.image}
           alt="Avatar"
           className="w-32 h-32 object-cover rounded-full mx-auto"
         />
@@ -55,7 +77,7 @@ const UserDetails = ({ accountId }) => {
       {/* Full Name */}
       <div className="mb-4 border border-gray-300 p-3 rounded">
         <label className="block text-gray-700 font-bold mb-2">Full Name</label>
-        <p className="text-lg">{account.fullName}</p>
+        <p className="text-lg">{account.fullname}</p>
       </div>
 
       {/* Address */}
@@ -73,21 +95,13 @@ const UserDetails = ({ accountId }) => {
       {/* Phone */}
       <div className="mb-4 border border-gray-300 p-3 rounded">
         <label className="block text-gray-700 font-bold mb-2">Phone</label>
-        <p className="text-lg">{account.phone}</p>
-      </div>
-
-      {/* Date of Birth */}
-      <div className="mb-4 border border-gray-300 p-3 rounded">
-        <label className="block text-gray-700 font-bold mb-2">
-          Date of Birth
-        </label>
-        <p className="text-lg">{new Date(account.dob).toLocaleDateString()}</p>
+        <p className="text-lg">{account.phoneNumber}</p>
       </div>
 
       {/* Role */}
       <div className="mb-4 border border-gray-300 p-3 rounded">
         <label className="block text-gray-700 font-bold mb-2">Role</label>
-        <p className="text-lg">{account.role}</p>
+        <p className="text-lg">{getUserRole(account.role)}</p>
       </div>
 
       {/* Gender */}
@@ -99,28 +113,26 @@ const UserDetails = ({ accountId }) => {
       {/* Status */}
       <div className="mb-4 border border-gray-300 p-3 rounded">
         <label className="block text-gray-700 font-bold mb-2">Status</label>
-        <p className="text-lg">
-          {account.status.charAt(0).toUpperCase() + account.status.slice(1)}
-        </p>
+        <p className="text-lg">{getUserStatus(account.status)}</p>
       </div>
 
       {/* Buttons */}
       <div className="flex justify-between mt-6">
         <button
-          className={`px-6 py-2 rounded focus:outline-none bg-gray-500 text-white hover:bg-gray-600 focus:outline-none"`}
-          onClick={() => navigate(-1)}
+          className="px-6 py-2 rounded focus:outline-none bg-gray-500 text-white hover:bg-gray-600"
+          onClick={() => navigate("/users")}
         >
           Back
         </button>
         <button
           className={`px-6 py-2 rounded focus:outline-none ${
-            account.status === "active"
+            account.status === "Active"
               ? "bg-red-500 text-white hover:bg-red-600"
               : "bg-green-500 text-white hover:bg-green-600"
           }`}
           onClick={handleToggleStatus}
         >
-          {account.status === "active" ? "Inactive" : "Active"}
+          {account.status === "Active" ? "Inactive" : "Active"}
         </button>
       </div>
     </div>

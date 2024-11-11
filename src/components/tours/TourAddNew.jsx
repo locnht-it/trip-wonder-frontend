@@ -28,8 +28,10 @@ const AddNewTour = () => {
     supplier: "",
     images: [],
     rating: "",
+    locations: [],
   });
 
+  // State for additional inputs
   const [categories, setCategories] = useState([]);
   const [provinces, setProvinces] = useState([]);
   const [suppliers, setSuppliers] = useState([]);
@@ -37,123 +39,98 @@ const AddNewTour = () => {
   const [uploadStatus, setUploadStatus] = useState(null);
   const [user, setUser] = useState();
 
+  // Fetch options on mount
   useEffect(() => {
     setUser(getUserDetails());
-    // Fetch categories
     listCategories(1, 1000)
       .then((response) => setCategories(response.data.content))
       .catch((error) => console.error("Error fetching categories:", error));
-
-    // Fetch provinces
     listProvinces(1, 1000)
       .then((response) => setProvinces(response.data.content))
       .catch((error) => console.error("Error fetching provinces:", error));
-
-    // Fetch suppliers
     listSuppliers(0, 1000)
       .then((response) => setSuppliers(response.data.content.content))
       .catch((error) => console.error("Error fetching suppliers:", error));
   }, []);
 
-  // Xử lý thay đổi input
+  // Handle input changes for form values
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setFormValues({ ...formValues, [name]: value });
-    console.log(`>>> Check formValues from TourAddNew: `, formValues);
   };
 
-  // Handle image upload
+  // Handle locations
+  const handleLocationChange = (index, event) => {
+    const { name, value } = event.target;
+    const newLocations = [...formValues.locations];
+    newLocations[index] = { ...newLocations[index], [name]: value };
+    setFormValues({ ...formValues, locations: newLocations });
+  };
+
+  const addLocation = () => {
+    setFormValues({
+      ...formValues,
+      locations: [
+        ...formValues.locations,
+        {
+          name: "",
+          startTime: "",
+          endTime: "",
+          facilitate: "",
+          latitude: "",
+          longitude: "",
+        },
+      ],
+    });
+  };
+
+  const removeLocation = (index) => {
+    const newLocations = formValues.locations.filter((_, i) => i !== index);
+    setFormValues({ ...formValues, locations: newLocations });
+  };
+
+  // Handle image uploads
   const handleImagesChange = (e) => {
     const files = e.target.files;
-    if (files.length > 0) {
-      const uploadPromises = [];
-      const urls = [];
+    const urls = [];
 
-      Array.from(files).forEach((file) => {
-        const imageRef = ref(storage, `images/${file.name + v4()}`);
-        const uploadTask = uploadBytes(imageRef, file)
-          .then(() => getDownloadURL(imageRef))
-          .then((url) => {
-            urls.push(url);
-          })
-          .catch((error) => {
-            console.error("Error uploading image:", error);
-            alert("Failed to upload image");
-          });
-        uploadPromises.push(uploadTask);
-      });
-
-      Promise.all(uploadPromises)
-        .then(() => {
-          setImages(urls);
-        })
+    Array.from(files).forEach((file) => {
+      const imageRef = ref(storage, `images/${file.name + v4()}`);
+      uploadBytes(imageRef, file)
+        .then(() => getDownloadURL(imageRef))
+        .then((url) => urls.push(url))
         .catch((error) => {
-          console.error("Error uploading one or more images:", error);
+          console.error("Error uploading image:", error);
+          alert("Failed to upload image");
         });
-    }
+    });
+
+    setImages(urls);
   };
 
-  // Xử lý khi người dùng chọn file để upload ngay lập tức
-  const handleFileUpload = async (e) => {
-    const selectedFile = e.target.files[0];
-
-    if (selectedFile) {
-      const formData = new FormData();
-      formData.append("file", selectedFile);
-
-      try {
-        setUploadStatus("Uploading...");
-        // Gửi file lên server qua API
-        await axios.post("/api/upload", formData, {
-          headers: {
-            "Content-Type": "multipart/form-data",
-          },
-        });
-
-        setUploadStatus("Upload successful!");
-      } catch (error) {
-        console.error("Error uploading file:", error);
-        setUploadStatus("Upload failed.");
-      }
-    }
-  };
-
-  // Handle form submission
-  // Handle form submission
   const handleSubmit = async (e) => {
     e.preventDefault();
-
     const tourData = {
-      name: formValues.name,
-      description: formValues.description,
-      shortDescription: formValues.shortDescription,
+      ...formValues,
       price: Number(formValues.price),
-      startTime: formValues.startTime,
-      endTime: formValues.endTime,
       attendance: Number(formValues.attendance),
-      status: formValues.status === "active", // Convert status to boolean
+      status: formValues.status === "active",
       categoryId: Number(formValues.category),
       provinceId: Number(formValues.province),
       ratingReviews: Number(formValues.rating),
-      galleries: images, // Use uploaded images
+      galleries: images,
       supplierId: formValues.supplier,
-      staffId: user?.userId, // Include userId if available
+      staffId: user?.userId,
     };
-
-    console.log(">>> Submitting tour data:", tourData);
 
     try {
       await createTour(tourData);
-      navigate("/tours"); // Redirect after success
+      navigate("/tours");
       toast.success("Tour created successfully!");
     } catch (error) {
       console.error("Error creating tour:", error);
       toast.error("Failed to create tour.");
     }
-  };
-
-  const handleBack = () => {
-    navigate("/tours");
   };
 
   return (
@@ -394,11 +371,93 @@ const AddNewTour = () => {
           </div>
         )}
 
+        {/* Locations */}
+        <div className="mb-4">
+          <label className="block text-gray-700 font-medium mb-2">
+            Locations
+          </label>
+          {formValues.locations.map((location, index) => (
+            <div key={index} className="mb-4 border p-4 rounded bg-gray-100">
+              <h2 className="text-lg font-semibold mb-2">
+                Location {index + 1}
+              </h2>
+              <input
+                type="text"
+                name="name"
+                value={location.name}
+                onChange={(e) => handleLocationChange(index, e)}
+                placeholder="Enter location name"
+                className="w-full mb-2 px-3 py-2 border border-gray-300 rounded"
+                required
+              />
+              <input
+                type="datetime-local"
+                name="startTime"
+                value={location.startTime}
+                onChange={(e) => handleLocationChange(index, e)}
+                placeholder="Start Time"
+                className="w-full mb-2 px-3 py-2 border border-gray-300 rounded"
+                required
+              />
+              <input
+                type="datetime-local"
+                name="endTime"
+                value={location.endTime}
+                onChange={(e) => handleLocationChange(index, e)}
+                placeholder="End Time"
+                className="w-full mb-2 px-3 py-2 border border-gray-300 rounded"
+                required
+              />
+              <input
+                type="text"
+                name="facilitate"
+                value={location.facilitate}
+                onChange={(e) => handleLocationChange(index, e)}
+                placeholder="Enter facilitate"
+                className="w-full mb-2 px-3 py-2 border border-gray-300 rounded"
+              />
+              <input
+                type="number"
+                name="latitude"
+                value={location.latitude}
+                onChange={(e) => handleLocationChange(index, e)}
+                placeholder="Latitude"
+                className="w-full mb-2 px-3 py-2 border border-gray-300 rounded"
+                required
+              />
+              <input
+                type="number"
+                name="longitude"
+                value={location.longitude}
+                onChange={(e) => handleLocationChange(index, e)}
+                placeholder="Longitude"
+                className="w-full mb-2 px-3 py-2 border border-gray-300 rounded"
+                required
+              />
+              <button
+                type="button"
+                className="text-red-600 mt-2"
+                onClick={() => removeLocation(index)}
+              >
+                Remove Location
+              </button>
+            </div>
+          ))}
+          <button
+            type="button"
+            className="px-4 py-2 bg-blue-500 text-white font-bold rounded"
+            onClick={addLocation}
+          >
+            Add Location
+          </button>
+        </div>
+
+        {/* Submit */}
         <div className="flex justify-between">
           <button
             type="button"
             className="px-6 py-2 bg-gray-500 text-white font-bold rounded hover:bg-gray-700"
-            onClick={handleBack}
+            onClick={() => navigate("/tours")}
           >
             Back
           </button>

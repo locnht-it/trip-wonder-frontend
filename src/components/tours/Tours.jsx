@@ -58,8 +58,8 @@ const Tours = () => {
     navigate("/tours/save");
   };
 
-  const handleTourDetail = (id) => {
-    navigate(`/tours/${id}`);
+  const handleTourDetail = (id, status) => {
+    navigate(`/tours/${id}?status=${status}`);
   };
 
   return (
@@ -120,7 +120,10 @@ const Tours = () => {
                   {new Date(tour.date).toLocaleDateString()}
                 </td> */}
                 <td className="px-6 py-4 whitespace-no-wrap border-b text-blue-900 border-gray-500 text-sm leading-5">
-                  {tour.price}
+                  {tour.price.toLocaleString("vi-VN", {
+                    style: "currency",
+                    currency: "VND",
+                  })}
                 </td>
                 <td className="px-6 py-4 whitespace-no-wrap border-b text-blue-900 border-gray-500 text-sm leading-5">
                   {tour.province}
@@ -134,7 +137,7 @@ const Tours = () => {
                 <td className="px-6 py-4 whitespace-no-wrap text-right border-b border-gray-500 text-sm leading-5">
                   <button
                     className="px-5 py-2 border-blue-500 border text-blue-500 rounded transition duration-300 hover:bg-blue-700 hover:text-white focus:outline-none"
-                    onClick={() => handleTourDetail(tour.id)}
+                    onClick={() => handleTourDetail(tour.id, tour.status)}
                   >
                     View Details
                   </button>

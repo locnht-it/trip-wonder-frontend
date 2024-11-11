@@ -3,16 +3,16 @@ import { useNavigate } from "react-router-dom";
 import { storage } from "../../lib/firebase/Firebase";
 import { getDownloadURL, ref, uploadBytes } from "firebase/storage";
 import { v4 } from "uuid";
+import { createUser } from "../../api/userApi";
+import { toast } from "react-toastify";
 
 const UserAddNew = () => {
   const [image, setImage] = useState(null);
-  const [fullName, setFullName] = useState("");
+  const [fullname, setFullname] = useState("");
   const [address, setAddress] = useState("");
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
   const [password, setPassword] = useState("");
-  const [dob, setDob] = useState("");
-  const [role, setRole] = useState("ADMIN");
   const [gender, setGender] = useState("Male");
 
   const navigate = useNavigate();
@@ -43,20 +43,26 @@ const UserAddNew = () => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    // Xử lý logic submit form (ví dụ gửi dữ liệu đến server API)
+    // Xử lý logic submit form (gửi dữ liệu tới server)
     const accountData = {
       image,
-      fullName,
+      fullname,
       address,
       email,
       phone,
       password,
-      dob,
-      role,
-      gender,
+      gender, // Không cần role nữa
     };
-    console.log(accountData); // Kiểm tra dữ liệu trên console
-    alert("Account has been created successfully!");
+    console.log(`>>> Check user before call api createUser: `, accountData);
+    createUser(accountData) // Gọi API createUser để tạo người dùng
+      .then((response) => {
+        toast.success("Account has been created successfully!");
+        navigate("/users"); // Redirect đến trang users hoặc trang cần thiết sau khi tạo người dùng
+      })
+      .catch((error) => {
+        console.error("Error creating user:", error);
+        alert("Failed to create user");
+      });
   };
 
   return (
@@ -91,8 +97,8 @@ const UserAddNew = () => {
           </label>
           <input
             type="text"
-            value={fullName}
-            onChange={(e) => setFullName(e.target.value)}
+            value={fullname}
+            onChange={(e) => setFullname(e.target.value)}
             required
             className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none"
           />
@@ -150,20 +156,6 @@ const UserAddNew = () => {
           />
         </div>
 
-        {/* Date of Birth */}
-        <div className="mb-4">
-          <label className="block text-gray-700 font-medium mb-2">
-            Date of Birth
-          </label>
-          <input
-            type="date"
-            value={dob}
-            onChange={(e) => setDob(e.target.value)}
-            required
-            className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none"
-          />
-        </div>
-
         {/* Gender */}
         <div className="mb-4">
           <label className="block text-gray-700 font-medium mb-2">Gender</label>
@@ -172,22 +164,9 @@ const UserAddNew = () => {
             onChange={(e) => setGender(e.target.value)}
             className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none"
           >
-            <option value="Male">Male</option>
-            <option value="Female">Female</option>
-            <option value="Others">Others</option>
-          </select>
-        </div>
-
-        {/* Role */}
-        <div className="mb-4">
-          <label className="block text-gray-700 font-medium mb-2">Role</label>
-          <select
-            value={role}
-            onChange={(e) => setRole(e.target.value)}
-            className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none"
-          >
-            <option value="ADMIN">ADMIN</option>
-            <option value="MANAGER">MANAGER</option>
+            <option value="MALE">Male</option>
+            <option value="FEMALE">Female</option>
+            <option value="OTHERS">Others</option>
           </select>
         </div>
 
@@ -198,7 +177,7 @@ const UserAddNew = () => {
           >
             Back
           </button>
-          {/* Nút "Add New Tour" */}
+          {/* Nút "Add New User" */}
           <button
             type="submit"
             className="mt-4 px-4 py-2 text-white bg-green-500 rounded hover:bg-green-600 focus:outline-none font-bold"
